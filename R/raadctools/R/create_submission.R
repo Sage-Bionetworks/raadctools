@@ -10,7 +10,7 @@ create_submission <- function(.data) {
   suppressWarnings(
     time_stamp <- strftime(
       x = lubridate::now("UTC"),
-      format = "%Y-%m-%d_%H:%M:%OS_%Z",
+      format = "%Y-%m-%d_%H-%M-%OS_%Z",
       tz = "UTC"
     )
   )

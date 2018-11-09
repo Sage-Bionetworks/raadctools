@@ -9,11 +9,15 @@ Description: Convenience functions for participating in RAAD Challenges.
 Depends: R (>= 3.4.1)
 License: What license is it under?
 Imports:
+    synapser,
     dplyr,
     stringr,
     lubridate,
     readr,
-    testthat
+    testthat,
+    crayon
+Additional_repositories:
+    https://sage-bionetworks.github.io/ran
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1.9000

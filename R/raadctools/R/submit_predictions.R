@@ -11,10 +11,7 @@
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
 #'
-#' @return returns list with values for...
-#'     `submission_filename`
-#'     `submission_entity_id`
-#'     `submission_id`
+#' @return None
 #' @export
 #'
 #' @examples
@@ -36,34 +33,46 @@ submit_predictions <- function(
   project_id,
   validate_only = FALSE
 ) {
-
   message("Running checks to validate data frame format...\n")
 
   validate_predictions(.data)
 
   if (!validate_only) {
+    if (confirm_submission() == 2) {
+      stop("Exiting submission attempt.", call. = FALSE)
+    }
 
+    message("Writing data to local CSV file...\n")
     submission_filename <- create_submission(.data)
 
-    # submission_entity <- synapser::synStore(
-    #   synapser::File(path = submission_filename, parentId = project_id)
-    # )
-    # submission_entity_id <- submission_entity$id
-    submission_entity_id <- "syn1234"
+    submission_entity <- synapser::synStore(
+      synapser::File(path = submission_filename, parentId = project_id)
+    )
+    submission_entity_id <- submission_entity$id
 
     # submission_object <- synapser::synSubmit(
     #   evaluation = "9612371",
     #   entity = submission_entity
     # )
-    # submission_id <- submission$id
+    submission = list(id = "test_id")
+    submission_id <- submission$id
 
-    # message("")
-    message(stringr::str_glue("Successfully submitted file: '{}'",
-                              "... stored as '{}'",
+    message(stringr::str_glue("Successfully submitted file: '{filename}'\n",
+                              " > stored as '{entity_id}'\n",
+                              " > submission ID: '{sub_id}'",
                               filename = submission_filename,
-                              entity_id = submission_entity_id))
-    # message(paste0("... stored as '",
-    #                submission_entity_id, "'"))
-    # message(paste0("Submission ID: '", submission_id))
+                              entity_id = submission_entity_id,
+                              sub_id = submission_id))
   }
+}
+
+
+confirm_submission <- function() {
+  msg <- stringr::str_glue(
+    "Each team is allotted ONE submission per 24 hours. After submitting
+    these predictions, you will not be able to submit again until tomorrow.
+
+    Are you sure you want to submit?"
+  )
+  menu(c("Yes", "No"), title = crayon::bold(msg))
 }

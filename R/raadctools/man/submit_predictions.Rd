@@ -18,10 +18,7 @@ submitted predictions will be stored.}
 don't submit to the challenge.}
 }
 \value{
-returns list with values for...
-    `submission_filename`
-    `submission_entity_id`
-    `submission_id`
+None
 }
 \description{
 Validates prediction data frame (`.data`) to check for any formatting
