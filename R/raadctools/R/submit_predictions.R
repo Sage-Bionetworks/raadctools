@@ -29,50 +29,71 @@
 #'                    validate_only = TRUE)
 submit_predictions <- function(
   .data,
-  team_id,
-  project_id,
-  validate_only = FALSE
+  validate_only = FALSE,
+  dry_run = FALSE
 ) {
   message("Running checks to validate data frame format...\n")
 
   validate_predictions(.data)
 
   if (!validate_only) {
+    # tryCatch(
+    #   synapser::synLogin(),
+    #   error = function(e) configure_login()
+    # )
+    synapser::synLogin()
+    user_profile <- synapser::synGetUserProfile()
+    user_profile <- jsonlite::fromJSON(user_profile$json())
+    owner_id <- user_profile$ownerId
+    team_info <- get_team_info(owner_id)
+
+    message("\n\nChecking ability to submit...\n")
+    check_eligibility(team_info$team_id, owner_id)
+
     if (confirm_submission() == 2) {
       stop("Exiting submission attempt.", call. = FALSE)
     }
 
-    message("Writing data to local CSV file...\n")
-    submission_filename <- create_submission(.data)
+    message("\nWriting data to local CSV file...\n")
+    submission_filename <- create_submission(.data, dry_run)
 
-    submission_entity <- synapser::synStore(
-      synapser::File(path = submission_filename, parentId = project_id)
+    if (!dry_run) {
+      submission_entity <- synapser::synStore(
+        synapser::File(
+          path = submission_filename,
+          parentId = team_info$project_id)
+      )
+      submission_entity_id <- submission_entity$id
+
+      submission_object <- synapser::synSubmit(
+        eval_id = "9614112",
+        entity = submission_entity
+      )
+    } else {
+      submission_entity_id <- "<pending; dry-run only>"
+      submission_id <- "<pending; dry-run only>"
+    }
+
+    submit_msg <- stringr::str_glue(
+      "Successfully submitted file: '{filename}'\n",
+      " > stored as '{entity_id}'\n",
+      " > submission ID: '{sub_id}'",
+      filename = submission_filename,
+      entity_id = submission_entity_id,
+      sub_id = submission_id
     )
-    submission_entity_id <- submission_entity$id
-
-    # submission_object <- synapser::synSubmit(
-    #   evaluation = "9612371",
-    #   entity = submission_entity
-    # )
-    submission = list(id = "test_id")
-    submission_id <- submission$id
-
-    message(stringr::str_glue("Successfully submitted file: '{filename}'\n",
-                              " > stored as '{entity_id}'\n",
-                              " > submission ID: '{sub_id}'",
-                              filename = submission_filename,
-                              entity_id = submission_entity_id,
-                              sub_id = submission_id))
+    cat(submit_msg)
   }
 }
 
 
 confirm_submission <- function() {
   msg <- stringr::str_glue(
-    "Each team is allotted ONE submission per 24 hours. After submitting
-    these predictions, you will not be able to submit again until tomorrow.
+    "\n\nEach team is allotted ONE submission per 24 hours. After submitting
+these predictions, you will not be able to submit again until tomorrow.
 
-    Are you sure you want to submit?"
+Are you sure you want to submit?
+    "
   )
   menu(c("Yes", "No"), title = crayon::bold(msg))
 }

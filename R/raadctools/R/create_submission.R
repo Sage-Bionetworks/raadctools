@@ -6,7 +6,7 @@
 #'
 #' @return `create_submission()` returns a string with the file name for the
 #'     locally saved file.
-create_submission <- function(.data) {
+create_submission <- function(.data, dry_run = FALSE) {
   suppressWarnings(
     time_stamp <- strftime(
       x = lubridate::now("UTC"),
@@ -18,6 +18,8 @@ create_submission <- function(.data) {
                                            user = Sys.getenv("USER"),
                                            time = time_stamp)
 
-  readr::write_csv(.data, submission_filename)
+  if (!dry_run) {
+    readr::write_csv(.data, submission_filename)
+  }
   submission_filename
 }
