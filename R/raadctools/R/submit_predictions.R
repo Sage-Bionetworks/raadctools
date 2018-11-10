@@ -74,21 +74,24 @@ submit_predictions <- function(
       submission_id <- "<pending; dry-run only>"
     }
 
-    submit_msg <- stringr::str_glue(
-      "Successfully submitted file: '{filename}'\n",
-      " > stored as '{entity_id}'\n",
-      " > submission ID: '{sub_id}'",
+    submit_msg <- glue::glue(
+      "
+      Successfully submitted file: '{filename}'
+       > stored as '{entity_id}'
+       > submission ID: '{sub_id}'
+
+      ",
       filename = submission_filename,
       entity_id = submission_entity_id,
       sub_id = submission_id
     )
-    cat(submit_msg)
+    message(submit_msg)
   }
 }
 
 
 confirm_submission <- function() {
-  msg <- stringr::str_glue(
+  msg <- glue::glue(
     "\n\nEach team is allotted ONE submission per 24 hours. After submitting
 these predictions, you will not be able to submit again until tomorrow.
 

@@ -14,9 +14,9 @@ create_submission <- function(.data, dry_run = FALSE) {
       tz = "UTC"
     )
   )
-  submission_filename <- stringr::str_glue("{user}_{time}.csv",
-                                           user = Sys.getenv("USER"),
-                                           time = time_stamp)
+  submission_filename <- glue::glue("{user}_{time}.csv",
+                                    user = Sys.getenv("USER"),
+                                    time = time_stamp)
 
   if (!dry_run) {
     readr::write_csv(.data, submission_filename)

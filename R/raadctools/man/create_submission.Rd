@@ -4,7 +4,7 @@
 \alias{create_submission}
 \title{Create submission file for RAAD Challenge}
 \usage{
-create_submission(.data)
+create_submission(.data, dry_run = FALSE)
 }
 \arguments{
 \item{.data}{A tbl or data frame with participant predictions.}

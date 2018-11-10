@@ -13,7 +13,7 @@ get_team_info <- function(owner_id) {
   )
 
   owner_teams <- synapser::synRestGET(
-    stringr::str_glue("/user/{id}/team/id", id = owner_id)
+    glue::glue("/user/{id}/team/id", id = owner_id)
   )
   owner_team_ids <- purrr::flatten_chr(owner_teams$teamIds)
 
@@ -36,7 +36,7 @@ get_challenge_teams <- function() {
     purrr::set_names(.) %>%
     purrr::map(function(challenge_id) {
       teams <- synapser::synRestGET(
-        stringr::str_glue("/challenge/{id}/challengeTeam", id = challenge_id)
+        glue::glue("/challenge/{id}/challengeTeam", id = challenge_id)
       )
       purrr::map_chr(teams$results, "teamId")}) %>%
     purrr::keep(~ length(.) > 0) %>%
@@ -50,7 +50,7 @@ get_challenge_teams <- function() {
 #' @return
 get_team_table <- function() {
   table_id <- "syn17007653"
-  table_query <- stringr::str_glue("SELECT * FROM {table}", table = table_id)
+  table_query <- glue::glue("SELECT * FROM {table}", table = table_id)
   res <- synapser::synTableQuery(table_query)
   dplyr::rename(res$asDataFrame(), team_id = teamId)
 }
@@ -63,8 +63,8 @@ get_team_table <- function() {
 #' @return
 lookup_team_project <- function(team_id) {
   table_id <- "syn17007653"
-  table_query <- stringr::str_glue("SELECT * FROM {table} WHERE teamId = {id}",
-                                   table = table_id, id = team_id)
+  table_query <- glue::glue("SELECT * FROM {table} WHERE teamId = {id}",
+                            table = table_id, id = team_id)
   res <- synapser::synTableQuery(table_query)
   purrr::pluck(res$asDataFrame(), "wikiSynId")
 }

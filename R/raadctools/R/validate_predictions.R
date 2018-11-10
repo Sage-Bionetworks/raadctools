@@ -37,8 +37,8 @@ validate_predictions <- function(.data) {
 run_checks <- function(.data) {
   col_names <- c("Subject", "SubPopulation")
   testthat::test_that(
-    stringr::str_glue("prediction data frame must have columns [{c}]",
-                      c = stringr::str_c(col_names, collapse = ", ")),
+    glue::glue("prediction data frame must have columns [{c}]",
+               c = stringr::str_c(col_names, collapse = ", ")),
     {testthat::expect_named(.data, col_names, ignore.order = TRUE)}
   )
 

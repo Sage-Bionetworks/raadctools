@@ -8,9 +8,9 @@ check_eligibility <- function(team_id, owner_id) {
   team_name <- synapser::synGetTeam(team_id)[["name"]]
   eval_id <- "9614112"
   eligibility_data <- synapser::synRestGET(
-    stringr::str_glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
-                      evalId = eval_id, id = team_id)
-    )
+    glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
+               evalId = eval_id, id = team_id)
+  )
 
   team_eligibility <- tibble::as_tibble(eligibility_data$teamEligibility)
 
@@ -18,13 +18,13 @@ check_eligibility <- function(team_id, owner_id) {
     purrr::map_df(tibble::as_tibble) %>%
     dplyr::filter(principalId == owner_id)
 
-  cat(stringr::str_glue(
+  cat(glue::glue(
     crayon::bold(" > Team: ") %+% "{team_msg}\n\n",
-    team_msg = stringr::str_glue(team_eligibility_msg(team_eligibility),
+    team_msg = glue::glue(team_eligibility_msg(team_eligibility),
                                  name = team_name)
   ))
   if (team_eligibility$isEligible) {
-    cat(stringr::str_glue(
+    cat(glue::glue(
       crayon::bold(" > User: ") %+% "{owner_msg}\n\n",
       owner_msg = owner_eligibility_msg(owner_eligibility)
     ))

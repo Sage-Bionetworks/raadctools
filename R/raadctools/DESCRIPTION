@@ -12,6 +12,7 @@ Imports:
     synapser,
     dplyr,
     stringr,
+    glue,
     lubridate,
     readr,
     testthat,

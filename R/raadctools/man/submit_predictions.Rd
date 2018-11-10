@@ -4,18 +4,18 @@
 \alias{submit_predictions}
 \title{Submit predictions to the RAAD Challenge evaluation queue}
 \usage{
-submit_predictions(.data, team_id, project_id, validate_only = FALSE)
+submit_predictions(.data, validate_only = FALSE, dry_run = FALSE)
 }
 \arguments{
 \item{.data}{A tbl or data frame with participant predictions.}
 
-\item{team_id}{ID (7-digit string) of the participant's team.}
+\item{validate_only}{If `TRUE`, check data for any formatting errors but
+don't submit to the challenge.}
 
 \item{project_id}{Synapse ID for the participant's team project, where
 submitted predictions will be stored.}
 
-\item{validate_only}{If `TRUE`, check data for any formatting errors but
-don't submit to the challenge.}
+\item{team_id}{ID (7-digit string) of the participant's team.}
 }
 \value{
 None
