@@ -2,10 +2,13 @@
 % Please edit documentation in R/configure_login.R
 \name{configure_login}
 \alias{configure_login}
-\title{Title}
+\title{Collect and store Synapse login credentials.}
 \usage{
 configure_login()
 }
+\value{
+None
+}
 \description{
-Title
+Collect and store Synapse login credentials.
 }

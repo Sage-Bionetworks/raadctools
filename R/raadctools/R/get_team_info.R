@@ -1,6 +1,6 @@
 #' Collect challenge team information for the specified Synapse user.
 #'
-#' @param owner_id
+#' @param owner_id Synapse user ID (integer string) of the participant.
 #'
 #' @return
 #' @export
@@ -27,7 +27,7 @@ get_team_info <- function(owner_id) {
 }
 
 
-#' Title
+#' Collect registered challenge team IDs via Synapse REST API.
 #'
 #' @return
 get_challenge_teams <- function() {
@@ -45,7 +45,7 @@ get_challenge_teams <- function() {
 }
 
 
-#' Title
+#' Collect registered challenge team IDs from Synapse table.
 #'
 #' @return
 get_team_table <- function() {
@@ -58,7 +58,7 @@ get_team_table <- function() {
 
 #' Look up the project/wiki ID for the specified challenge team.
 #'
-#' @param team_id
+#' @param team_id ID (integer string) of the participant's team.
 #'
 #' @return
 lookup_team_project <- function(team_id) {

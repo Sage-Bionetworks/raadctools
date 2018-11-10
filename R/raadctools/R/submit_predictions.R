@@ -1,4 +1,4 @@
-#' Submit predictions to the RAAD Challenge evaluation queue
+#' Submit predictions to the RAAD Challenge evaluation queue.
 #'
 #' Validates prediction data frame (`.data`) to check for any formatting
 #' errors, saves data to local CSV file, stores file in Synapse, then submits
@@ -7,7 +7,6 @@
 #' @param .data A tbl or data frame with participant predictions.
 #' @param project_id Synapse ID for the participant's team project, where
 #'     submitted predictions will be stored.
-#' @param team_id ID (7-digit string) of the participant's team.
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
 #'
@@ -90,10 +89,13 @@ submit_predictions <- function(
 }
 
 
+#' Prompt user to verify whether they want to submit to challenge.
+#'
+#' @return
 confirm_submission <- function() {
   msg <- glue::glue(
     "\n\nEach team is allotted ONE submission per 24 hours. After submitting
-these predictions, you will not be able to submit again until tomorrow.
+these predictions, yous will not be able to submit again until tomorrow.
 
 Are you sure you want to submit?
     "

@@ -2,13 +2,17 @@
 % Please edit documentation in R/check_eligibility.R
 \name{team_eligibility_msg}
 \alias{team_eligibility_msg}
-\title{Title}
+\title{Construct message summarizing team submission eligibility.}
 \usage{
 team_eligibility_msg(.data)
 }
 \arguments{
-\item{.data}{}
+\item{.data}{A tbl with eligibility status for submission team.}
+}
+\value{
+String summarizing eligibility status and any reasons that team
+    might currently be ineligible to submit.
 }
 \description{
-Title
+Construct message summarizing team submission eligibility.
 }

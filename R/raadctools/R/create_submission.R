@@ -1,4 +1,4 @@
-#' Create submission file for RAAD Challenge
+#' Create submission file for RAAD Challenge.
 #'
 #' Writes `.data` to CSV file named with user ID and time stamp.
 #'

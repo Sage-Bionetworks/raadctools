@@ -2,16 +2,16 @@
 % Please edit documentation in R/get_certification_status.R
 \name{get_certification_status}
 \alias{get_certification_status}
-\title{Check whether user is certified on Synapse}
+\title{Check whether user is certified on Synapse.}
 \usage{
 get_certification_status(owner_id)
 }
 \arguments{
-\item{owner_id}{}
+\item{owner_id}{Synapse user ID (integer string) of the participant.}
 }
 \value{
 If user is certified, return `TRUE`; else return `FALSE`.
 }
 \description{
-Check whether user is certified on Synapse
+Check whether user is certified on Synapse.
 }

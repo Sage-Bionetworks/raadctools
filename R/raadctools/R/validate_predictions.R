@@ -1,4 +1,4 @@
-#' Check prediction data for formatting errors
+#' Check prediction data for formatting errors.
 #'
 #' Validates prediction data frame (`.data`) to check for any formatting
 #' errors.
@@ -29,7 +29,7 @@ validate_predictions <- function(.data) {
 }
 
 
-#' Define cases and expectations for formatting checks
+#' Define cases and expectations for formatting checks.
 #'
 #' @param .data A tbl or data frame with participant predictions.
 #'

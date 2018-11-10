@@ -1,9 +1,9 @@
-#' Title
+#' Check whether user is eligible to submit to the challenge.
 #'
-#' @param team_id
-#' @param owner_id
+#' @param team_id ID (integer string) of the participant's team.
+#' @param owner_id Synapse user ID (integer string) of the participant.
 #'
-#' @return
+#' @return If eligible to submit, return `TRUE`; else return `FALSE`.
 check_eligibility <- function(team_id, owner_id) {
   team_name <- synapser::synGetTeam(team_id)[["name"]]
   eval_id <- "9614112"
@@ -33,11 +33,12 @@ check_eligibility <- function(team_id, owner_id) {
   team_eligibility$isEligible & owner_eligibility$isEligible
 }
 
-#' Title
+#' Construct message summarizing team submission eligibility.
 #'
-#' @param .data
+#' @param .data A tbl with eligibility status for submission team.
 #'
-#' @return
+#' @return String summarizing eligibility status and any reasons that team
+#'     might currently be ineligible to submit.
 team_eligibility_msg <- function(.data) {
   .data %>%
     mutate(
@@ -63,11 +64,12 @@ team_eligibility_msg <- function(.data) {
 }
 
 
-#' Title
+#' Construct message summarizing user submission eligibility.
 #'
-#' @param .data
+#' @param .data A tbl with eligibility status for submitting user.
 #'
-#' @return
+#' @return String summarizing eligibility status and any reasons that user
+#'     might currently be ineligible to submit.
 owner_eligibility_msg <- function(.data) {
   .data %>%
     mutate(

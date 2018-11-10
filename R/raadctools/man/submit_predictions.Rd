@@ -2,7 +2,7 @@
 % Please edit documentation in R/submit_predictions.R
 \name{submit_predictions}
 \alias{submit_predictions}
-\title{Submit predictions to the RAAD Challenge evaluation queue}
+\title{Submit predictions to the RAAD Challenge evaluation queue.}
 \usage{
 submit_predictions(.data, validate_only = FALSE, dry_run = FALSE)
 }
@@ -14,8 +14,6 @@ don't submit to the challenge.}
 
 \item{project_id}{Synapse ID for the participant's team project, where
 submitted predictions will be stored.}
-
-\item{team_id}{ID (7-digit string) of the participant's team.}
 }
 \value{
 None

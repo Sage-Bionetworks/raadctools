@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate_predictions.R
 \name{run_checks}
 \alias{run_checks}
-\title{Define cases and expectations for formatting checks}
+\title{Define cases and expectations for formatting checks.}
 \usage{
 run_checks(.data)
 }
@@ -13,5 +13,5 @@ run_checks(.data)
 None
 }
 \description{
-Define cases and expectations for formatting checks
+Define cases and expectations for formatting checks.
 }

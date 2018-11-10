@@ -2,10 +2,10 @@
 % Please edit documentation in R/get_team_info.R
 \name{get_challenge_teams}
 \alias{get_challenge_teams}
-\title{Title}
+\title{Collect registered challenge team IDs via Synapse REST API.}
 \usage{
 get_challenge_teams()
 }
 \description{
-Title
+Collect registered challenge team IDs via Synapse REST API.
 }

@@ -7,7 +7,7 @@
 lookup_team_project(team_id)
 }
 \arguments{
-\item{team_id}{}
+\item{team_id}{ID (integer string) of the participant's team.}
 }
 \description{
 Look up the project/wiki ID for the specified challenge team.

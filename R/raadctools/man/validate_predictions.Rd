@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate_predictions.R
 \name{validate_predictions}
 \alias{validate_predictions}
-\title{Check prediction data for formatting errors}
+\title{Check prediction data for formatting errors.}
 \usage{
 validate_predictions(.data)
 }

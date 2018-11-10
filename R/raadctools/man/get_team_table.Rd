@@ -2,10 +2,10 @@
 % Please edit documentation in R/get_team_info.R
 \name{get_team_table}
 \alias{get_team_table}
-\title{Title}
+\title{Collect registered challenge team IDs from Synapse table.}
 \usage{
 get_team_table()
 }
 \description{
-Title
+Collect registered challenge team IDs from Synapse table.
 }

@@ -1,6 +1,6 @@
-#' Check whether user is certified on Synapse
+#' Check whether user is certified on Synapse.
 #'
-#' @param owner_id
+#' @param owner_id Synapse user ID (integer string) of the participant.
 #'
 #' @return If user is certified, return `TRUE`; else return `FALSE`.
 get_certification_status <- function(owner_id) {

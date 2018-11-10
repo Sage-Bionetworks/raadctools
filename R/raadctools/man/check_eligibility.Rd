@@ -2,13 +2,18 @@
 % Please edit documentation in R/check_eligibility.R
 \name{check_eligibility}
 \alias{check_eligibility}
-\title{Title}
+\title{Check whether user is eligible to submit to the challenge.}
 \usage{
 check_eligibility(team_id, owner_id)
 }
 \arguments{
-\item{owner_id}{}
+\item{team_id}{ID (integer string) of the participant's team.}
+
+\item{owner_id}{Synapse user ID (integer string) of the participant.}
+}
+\value{
+If eligible to submit, return `TRUE`; else return `FALSE`.
 }
 \description{
-Title
+Check whether user is eligible to submit to the challenge.
 }

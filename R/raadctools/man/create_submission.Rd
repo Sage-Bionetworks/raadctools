@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_submission.R
 \name{create_submission}
 \alias{create_submission}
-\title{Create submission file for RAAD Challenge}
+\title{Create submission file for RAAD Challenge.}
 \usage{
 create_submission(.data, dry_run = FALSE)
 }

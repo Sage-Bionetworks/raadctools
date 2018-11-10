@@ -1,6 +1,6 @@
-#' Title
+#' Collect and store Synapse login credentials.
 #'
-#' @return
+#' @return None
 configure_login <- function() {
   new_msg <- glue::glue(
     "\n\nIt looks like this is your first time connecting to Synapse from this

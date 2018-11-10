@@ -7,7 +7,7 @@
 get_team_info(owner_id)
 }
 \arguments{
-\item{owner_id}{}
+\item{owner_id}{Synapse user ID (integer string) of the participant.}
 }
 \description{
 Collect challenge team information for the specified Synapse user.
