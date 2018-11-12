@@ -65,6 +65,6 @@ lookup_team_project <- function(team_id) {
   table_id <- "syn17007653"
   table_query <- glue::glue("SELECT * FROM {table} WHERE teamId = {id}",
                             table = table_id, id = team_id)
-  res <- synapser::synTableQuery(table_query)
+  res <- invisible(synapser::synTableQuery(table_query))
   purrr::pluck(res$asDataFrame(), "wikiSynId")
 }

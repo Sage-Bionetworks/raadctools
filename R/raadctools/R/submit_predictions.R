@@ -85,13 +85,17 @@ submit_predictions <- function(
       sub_id = submission_id
     )
     message(submit_msg)
+
+    cat(crayon::green(crayon::bold(
+      success_msg(submission_filename, submission_entity_id, submission_id)
+    )))
   }
 }
 
 
 #' Prompt user to verify whether they want to submit to challenge.
 #'
-#' @return
+#' @return None
 confirm_submission <- function() {
   msg <- glue::glue(
     "\n\nEach team is allotted ONE submission per 24 hours. After submitting
@@ -100,5 +104,24 @@ these predictions, yous will not be able to submit again until tomorrow.
 Are you sure you want to submit?
     "
   )
-  menu(c("Yes", "No"), title = crayon::bold(msg))
+  menu(c("Yes", "No"), title = crayon::bold(crayon::green(msg)))
+}
+
+
+#' Provide user with information about where to find submission results.
+#'
+#' @param filename
+#' @param entity_id
+#' @param sub_id
+#'
+#' @return
+success_msg <- function(filename, entity_id, sub_id) {
+  glue::glue(
+    "You can find the file with your predictions ('{fname}') on your team's
+    Synapse project at
+    https://www.synapse.org/#!Synapse:{eid}",
+  fname = filename,
+  eid = entity_id
+  )
+
 }
