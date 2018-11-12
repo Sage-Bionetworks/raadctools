@@ -4,10 +4,15 @@
 \alias{create_submission}
 \title{Create submission file for RAAD Challenge.}
 \usage{
-create_submission(.data, dry_run = FALSE)
+create_submission(.data, stamp = FALSE, dry_run = FALSE)
 }
 \arguments{
 \item{.data}{A tbl or data frame with participant predictions.}
+
+\item{stamp}{If `TRUE`, name the file according to user and time; otherwise
+use simple 'predictions.csv' file name.}
+
+\item{dry_run}{If `TRUE`, return file name but don't create file.}
 }
 \value{
 `create_submission()` returns a string with the file name for the

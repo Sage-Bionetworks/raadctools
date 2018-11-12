@@ -12,6 +12,9 @@ submit_predictions(.data, validate_only = FALSE, dry_run = FALSE)
 \item{validate_only}{If `TRUE`, check data for any formatting errors but
 don't submit to the challenge.}
 
+\item{dry_run}{If `TRUE`, execute submission steps, but don't store any
+data in Synapse.}
+
 \item{project_id}{Synapse ID for the participant's team project, where
 submitted predictions will be stored.}
 }

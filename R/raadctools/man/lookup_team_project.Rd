@@ -9,6 +9,9 @@ lookup_team_project(team_id)
 \arguments{
 \item{team_id}{ID (integer string) of the participant's team.}
 }
+\value{
+String with Synapse ID for team project.
+}
 \description{
 Look up the project/wiki ID for the specified challenge team.
 }

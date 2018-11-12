@@ -6,6 +6,9 @@
 \usage{
 confirm_submission()
 }
+\value{
+None
+}
 \description{
 Prompt user to verify whether they want to submit to challenge.
 }
