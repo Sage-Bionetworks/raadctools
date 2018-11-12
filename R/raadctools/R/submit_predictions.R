@@ -9,6 +9,8 @@
 #'     submitted predictions will be stored.
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
+#' @param dry_run If `TRUE`, execute submission steps, but don't store any
+#'     data in Synapse.
 #'
 #' @return None
 #' @export
@@ -47,23 +49,30 @@ submit_predictions <- function(
     team_info <- get_team_info(owner_id)
 
     message("\n\nChecking ability to submit...\n")
-    check_eligibility(team_info$team_id, owner_id)
+    is_eligible <- check_eligibility(team_info$team_id, owner_id)
+    is_certified <- check_certification(owner_id)
+    if (!is_eligible | !is_certified) {
+      stop("\nExiting submission attempt.", call. = FALSE)
+    }
 
     if (confirm_submission() == 2) {
-      stop("Exiting submission attempt.", call. = FALSE)
+      stop("\nExiting submission attempt.", call. = FALSE)
     }
 
     message("\nWriting data to local CSV file...\n")
-    submission_filename <- create_submission(.data, dry_run)
+    submission_filename <- create_submission(.data, stamp = FALSE, dry_run)
 
     if (!dry_run) {
+      message("\nUploading prediction file to Synapse...\n")
       submission_entity <- synapser::synStore(
         synapser::File(
           path = submission_filename,
-          parentId = team_info$project_id)
+          parentId = team_info$folder_id)
       )
+      print(submission_entity)
       submission_entity_id <- submission_entity$id
 
+      message("\nSubmitting prediction to challenge evaluation queue...\n")
       submission_object <- synapser::synSubmit(
         eval_id = "9614112",
         entity = submission_entity

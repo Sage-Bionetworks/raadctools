@@ -41,18 +41,18 @@ check_eligibility <- function(team_id, owner_id) {
 #'     might currently be ineligible to submit.
 team_eligibility_msg <- function(.data) {
   .data %>%
-    mutate(
-      eligible_msg = if_else(
+    dplyr::mutate(
+      eligible_msg = dplyr::if_else(
         isEligible,
         "Your team, {name}, is eligible to submit.",
         "Your team, {name}, is not eligible to submit at this time."
       ),
-      quota_msg = if_else(
+      quota_msg = dplyr::if_else(
         !isEligible & isQuotaFilled,
         "The team has reached its submission quota for this 24 hour period.",
         ""
       ),
-      registered_msg = if_else(
+      registered_msg = dplyr::if_else(
         !isEligible & !isRegistered,
         "The team is not registered for the challenge.",
         ""
@@ -72,18 +72,18 @@ team_eligibility_msg <- function(.data) {
 #'     might currently be ineligible to submit.
 owner_eligibility_msg <- function(.data) {
   .data %>%
-    mutate(
-      eligible_msg = if_else(
+    dplyr::mutate(
+      eligible_msg = dplyr::if_else(
         isEligible,
         "You're eligible to submit for your team.",
         "You're not currently eligible to submit."
       ),
-      registered_msg = if_else(
+      registered_msg = dplyr::if_else(
         !isEligible & !isRegistered,
         "The team is not registered for the challenge.",
         ""
       ),
-      conflict_msg = if_else(
+      conflict_msg = dplyr::if_else(
         !isEligible & hasConflictingSubmission,
         "It appears you've submitted for a different challenge team.",
         ""
