@@ -21,9 +21,11 @@ get_team_info <- function(owner_id) {
     dplyr::filter(team_id %in% owner_team_ids)
   team_id <- purrr::pluck(team_row, "team_id")
   team_project_id <- lookup_team_project(team_id)
+  team_folder_id <- lookup_prediction_folder(team_project_id)
 
   list(team_id = team_id,
-       project_id = team_project_id)
+       project_id = team_project_id,
+       folder_id = team_folder_id)
 }
 
 
@@ -60,11 +62,23 @@ get_team_table <- function() {
 #'
 #' @param team_id ID (integer string) of the participant's team.
 #'
-#' @return
+#' @return String with Synapse ID for team project.
 lookup_team_project <- function(team_id) {
   table_id <- "syn17007653"
   table_query <- glue::glue("SELECT * FROM {table} WHERE teamId = {id}",
                             table = table_id, id = team_id)
   res <- invisible(synapser::synTableQuery(table_query))
   purrr::pluck(res$asDataFrame(), "wikiSynId")
+}
+
+
+#' Look up folder ID where prediction file is to be stored.
+#'
+#' @param project_id Synapse ID of team's submission project.
+#'
+#' @return String with Synapse ID for submission folder.
+lookup_prediction_folder <- function(project_id) {
+  project_items <- synapser::synGetChildren(project_id)$asList()
+  prediction_folder <- purrr::keep(project_items, ~ .$name == "Prediction File")
+  purrr::flatten(prediction_folder)$id
 }
