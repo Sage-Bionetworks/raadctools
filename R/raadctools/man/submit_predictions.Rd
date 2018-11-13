@@ -27,6 +27,7 @@ errors, saves data to local CSV file, stores file in Synapse, then submits
 Synapse entity to RAAD Challenge evaluation queue for scoring.
 }
 \examples{
+\dontrun{
 # Example prediction data frame
 prediction_df <- data.frame(
     Subject = seq_len(100),
@@ -34,9 +35,11 @@ prediction_df <- data.frame(
 )
 
 # Submitting predictions for team "1234567" and team project "syn16810564"
+
 submit_predictions(prediction_df, "1234567", "syn16810564")
 
 # To validate data only but not submit:
 submit_predictions(prediction_df, "1234567", "syn16810564",
                    validate_only = TRUE)
+}
 }
