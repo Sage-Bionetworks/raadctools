@@ -11,6 +11,8 @@ License: What license is it under?
 Imports:
     synapser,
     dplyr,
+    tidyr,
+    purrr,
     stringr,
     glue,
     lubridate,
