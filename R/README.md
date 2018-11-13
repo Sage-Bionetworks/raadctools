@@ -1,5 +1,12 @@
 # RAAD Challenge tools for R
 
+## Installation
+
+```r
+devtools::install_github("Sage-Bionetworks/raadctools", subdir = "R")
+```
+
+
 The **`raadctools`** package should be loaded by default when you start a R new session in the **Portable Analytics** platform. If not, use this command to get started:
 ```r
 library(raadctools)
