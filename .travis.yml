@@ -7,4 +7,4 @@ matrix:
   - language: r
     cache: packages
     before_install:
-    - cd R
+    - cd R/raadctools
