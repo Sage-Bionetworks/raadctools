@@ -13,6 +13,8 @@ Imports:
     dplyr,
     tidyr,
     purrr,
+    magrittr,
+    tibble,
     stringr,
     glue,
     lubridate,
