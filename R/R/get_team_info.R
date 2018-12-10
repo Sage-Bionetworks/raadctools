@@ -7,10 +7,7 @@
 #'
 #' @examples
 get_team_info <- function(owner_id) {
-  team_df <- tryCatch(
-    get_challenge_teams(),
-    error = function(e) get_team_table()
-  )
+  team_df <- get_team_table()
 
   owner_teams <- synapser::synRestGET(
     glue::glue("/user/{id}/team/id", id = owner_id)
@@ -32,26 +29,18 @@ get_team_info <- function(owner_id) {
 #' Collect registered challenge team IDs via Synapse REST API.
 #'
 #' @return
-get_challenge_teams <- function() {
-  challenge_ids <- c("4295", "4288")
-  team_df <- challenge_ids %>%
-    purrr::set_names(.) %>%
-    purrr::map(function(challenge_id) {
-      teams <- synapser::synRestGET(
-        glue::glue("/challenge/{id}/challengeTeam", id = challenge_id)
-      )
-      purrr::map_chr(teams$results, "teamId")}) %>%
-    purrr::keep(~ length(.) > 0) %>%
-    tibble::as_tibble() %>%
-    tidyr::gather(challenge_id, team_id)
+get_challenge_teams <- function(challenge_id = "4288") {
+  teams <- synapser::synRestGET(
+    glue::glue("/challenge/{id}/challengeTeam", id = challenge_id)
+  )
+  purrr::map_chr(teams$results, "teamId")
 }
 
 
 #' Collect registered challenge team IDs from Synapse table.
 #'
 #' @return
-get_team_table <- function() {
-  table_id <- "syn17007653"
+get_team_table <- function(table_id = "syn17091912") {
   table_query <- glue::glue("SELECT * FROM {table}", table = table_id)
   res <- synapser::synTableQuery(table_query)
   dplyr::rename(res$asDataFrame(), team_id = teamId)
@@ -63,12 +52,11 @@ get_team_table <- function() {
 #' @param team_id ID (integer string) of the participant's team.
 #'
 #' @return String with Synapse ID for team project.
-lookup_team_project <- function(team_id) {
-  table_id <- "syn17007653"
+lookup_team_project <- function(team_id, table_id = "syn17091912") {
   table_query <- glue::glue("SELECT * FROM {table} WHERE teamId = {id}",
                             table = table_id, id = team_id)
   res <- invisible(synapser::synTableQuery(table_query))
-  purrr::pluck(res$asDataFrame(), "wikiSynId")
+  purrr::pluck(res$asDataFrame(), "projectId")
 }
 
 
