@@ -6,9 +6,11 @@
 #'
 #' @param predictions A dataframe/tibble with two columns, \emph{PatientID} and
 #'     \emph{RespondingSubgroup}.
-#' @param submitter_id
+#' @param submitter_id Participant Synapse ID or registered email.
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
+#' @param skip_validation If `TRUE`, skip formatting checks and submit data
+#'     to the challenge.
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
 #'     data in Synapse.
 #'
@@ -36,12 +38,17 @@ submit_raadc2 <- function(
   predictions,
   submitter_id = NULL,
   validate_only = FALSE,
+  skip_validation = FALSE,
   dry_run = FALSE
 ) {
   suppressWarnings({
-  cat(crayon::yellow("\nRunning checks to validate data frame format...\n\n"))
   
-  getRAADC2::validate_predictions(predictions)
+  if (!skip_validation) {
+    cat(crayon::yellow(
+      "\nRunning checks to validate data frame format...\n\n"
+    ))
+    getRAADC2::validate_predictions(predictions)
+  }
   
   if (!validate_only) {
     switch_user("svc")
@@ -73,7 +80,8 @@ submit_raadc2 <- function(
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    submission_filename <- create_submission(predictions, dry_run)
+    print(dry_run)
+    submission_filename <- create_submission(predictions, dry_run = dry_run)
     
     if (!dry_run) {
       switch_user("svc")
@@ -132,7 +140,7 @@ confirm_submission <- function() {
   msg <- glue::glue(
     "\n
     Each team is allotted ONE submission per 24 hours. After submitting
-    these predictions, yous will not be able to submit again until tomorrow.
+    these predictions, you will not be able to submit again until tomorrow.
     \nAre you sure you want to submit?
     "
   )
