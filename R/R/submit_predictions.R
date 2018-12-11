@@ -1,12 +1,12 @@
 #' Submit predictions to the RAAD Challenge evaluation queue.
 #'
-#' Validates prediction data frame (`.data`) to check for any formatting
+#' Validates prediction data frame (`predictions`) to check for any formatting
 #' errors, saves data to local CSV file, stores file in Synapse, then submits
 #' Synapse entity to RAAD Challenge evaluation queue for scoring.
 #'
-#' @param .data A tbl or data frame with participant predictions.
-#' @param project_id Synapse ID for the participant's team project, where
-#'     submitted predictions will be stored.
+#' @param predictions A dataframe/tibble with two columns, \emph{PatientID} and
+#'     \emph{RespondingSubgroup}.
+#' @param submitter_id
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
@@ -18,28 +18,30 @@
 #' @examples
 #' \dontrun{
 #' # Example prediction data frame
-#' prediction_df <- data.frame(
-#'     Subject = seq_len(100),
-#'     SubPopulation = rep_len(c("Y", "N"), 50)
+#' set.seed(2018)
+#' d_predictions <- data.frame(
+#'   PatientID = paste0("Pat",1:400),
+#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
 #' )
 #'
 #' # Submitting predictions for team "1234567" and team project "syn16810564"
 #'
-#' submit_predictions(prediction_df, "1234567", "syn16810564")
+#' submit_predictions(d_predictions, "1234567", "syn16810564")
 #'
 #' # To validate data only but not submit:
-#' submit_predictions(prediction_df, "1234567", "syn16810564",
+#' submit_predictions(d_predictions, "1234567", "syn16810564",
 #'                    validate_only = TRUE)
 #'}
-submit_predictions <- function(
-  .data,
-  submitter_id,
+submit_raadc2 <- function(
+  predictions,
+  submitter_id = NULL,
   validate_only = FALSE,
   dry_run = FALSE
 ) {
+  suppressWarnings({
   cat(crayon::yellow("\nRunning checks to validate data frame format...\n\n"))
   
-  validate_predictions(.data)
+  getRAADC2::validate_predictions(predictions)
   
   if (!validate_only) {
     switch_user("svc")
@@ -71,7 +73,7 @@ submit_predictions <- function(
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    submission_filename <- create_submission(.data, stamp = FALSE, dry_run)
+    submission_filename <- create_submission(predictions, dry_run)
     
     if (!dry_run) {
       switch_user("svc")
@@ -91,7 +93,8 @@ submit_predictions <- function(
       ))
       submission_object <- synapser::synSubmit(
         evaluation = "9614112",
-        entity = submission_entity
+        entity = submission_entity,
+        team = synapser::synGetTeam(team_info$team_id)
       )
       submission_entity_id <- submission_object$entityId
       submission_id <- submission_object$id
@@ -118,6 +121,7 @@ submit_predictions <- function(
       success_msg(submission_filename, submission_entity_id, submission_id)
     ))
   }
+  })
 }
 
 
