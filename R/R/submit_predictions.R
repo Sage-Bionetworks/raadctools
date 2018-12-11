@@ -33,6 +33,7 @@
 #'}
 submit_predictions <- function(
   .data,
+  submitter_id,
   validate_only = FALSE,
   dry_run = FALSE
 ) {
@@ -41,19 +42,24 @@ submit_predictions <- function(
   validate_predictions(.data)
 
   if (!validate_only) {
-    # tryCatch(
-    #   synapser::synLogin(),
-    #   error = function(e) configure_login()
-    # )
-    synapser::synLogin()
-    user_profile <- synapser::synGetUserProfile()
-    user_profile <- jsonlite::fromJSON(user_profile$json())
-    owner_id <- user_profile$ownerId
+    switch_user("svc")
+    
+    if (is.na(as.integer(submitter_id))) {
+      owner_id <- lookup_owner_id(submitter_id)
+    } else {
+      owner_id <- submitter_id
+    }
+    # synapser::synLogin()
+    # user_profile <- synapser::synGetUserProfile()
+    # user_profile <- jsonlite::fromJSON(user_profile$json())
+    # owner_id <- user_profile$ownerId
+
     team_info <- get_team_info(owner_id)
 
+    switch_user(submitter_id)
     message("\n\nChecking ability to submit...\n")
     is_eligible <- check_eligibility(team_info$team_id, owner_id)
-    is_certified <- check_certification(owner_id)
+    is_certified <- TRUE # check_certification(owner_id)
     if (!is_eligible | !is_certified) {
       stop("\nExiting submission attempt.", call. = FALSE)
     }
@@ -66,13 +72,14 @@ submit_predictions <- function(
     submission_filename <- create_submission(.data, stamp = FALSE, dry_run)
 
     if (!dry_run) {
+      switch_user("svc")
       message("\nUploading prediction file to Synapse...\n")
       submission_entity <- synapser::synStore(
         synapser::File(
           path = submission_filename,
           parentId = team_info$folder_id)
       )
-      print(submission_entity)
+
       submission_entity_id <- submission_entity$id
 
       message("\nSubmitting prediction to challenge evaluation queue...\n")
@@ -135,5 +142,28 @@ success_msg <- function(filename, entity_id, sub_id) {
   fname = filename,
   eid = entity_id
   )
-
 }
+
+#' Look up the owner ID for Synapse user.
+#'
+#' @param user_id registered email of the participant.
+#'
+#' @return String with Synapse ID for team project.
+lookup_owner_id <- function(user_id, table_id = "syn17091891") {
+  table_query <- glue::glue("SELECT * FROM {table} WHERE userEmail = '{id}'",
+                            table = table_id, id = user_id)
+  res <- invisible(synapser::synTableQuery(table_query))
+  purrr::pluck(res$asDataFrame(), "userId")
+}
+
+switch_user <- function(user) {
+  if (user == "svc") {
+    synapser::synLogin()
+  } else {
+    synapser::synLogin(
+      email = user,
+      apiKey = Sys.getenv("SYN_API_KEY")
+    )
+  }
+}
+
