@@ -76,7 +76,7 @@ owner_eligibility_msg <- function(.data) {
       eligible_msg = dplyr::if_else(
         isEligible,
         "You're eligible to submit for your team.",
-        "You're not currently eligible to submit."
+        "You're not currently eligible to submit. "
       ),
       registered_msg = dplyr::if_else(
         !isEligible & !isRegistered,

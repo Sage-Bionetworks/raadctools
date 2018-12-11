@@ -37,10 +37,10 @@ submit_predictions <- function(
   validate_only = FALSE,
   dry_run = FALSE
 ) {
-  message("Running checks to validate data frame format...\n")
-
+  cat(crayon::yellow("\nRunning checks to validate data frame format...\n\n"))
+  
   validate_predictions(.data)
-
+  
   if (!validate_only) {
     switch_user("svc")
     
@@ -53,61 +53,70 @@ submit_predictions <- function(
     # user_profile <- synapser::synGetUserProfile()
     # user_profile <- jsonlite::fromJSON(user_profile$json())
     # owner_id <- user_profile$ownerId
-
+    
     team_info <- get_team_info(owner_id)
-
+    
     switch_user(submitter_id)
-    message("\n\nChecking ability to submit...\n")
+    cat(crayon::yellow("\nChecking ability to submit...\n\n"))
     is_eligible <- check_eligibility(team_info$team_id, owner_id)
     is_certified <- TRUE # check_certification(owner_id)
     if (!is_eligible | !is_certified) {
+      switch_user("svc")
       stop("\nExiting submission attempt.", call. = FALSE)
     }
-
+    
     if (confirm_submission() == 2) {
+      switch_user("svc")
       stop("\nExiting submission attempt.", call. = FALSE)
     }
-
-    message("\nWriting data to local CSV file...\n")
+    
+    cat(crayon::yellow("\nWriting data to local CSV file...\n"))
     submission_filename <- create_submission(.data, stamp = FALSE, dry_run)
-
+    
     if (!dry_run) {
       switch_user("svc")
-      message("\nUploading prediction file to Synapse...\n")
+      cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
       submission_entity <- synapser::synStore(
         synapser::File(
           path = submission_filename,
-          parentId = team_info$folder_id)
+          parentId = team_info$folder_id
+        )
       )
-
+      
       submission_entity_id <- submission_entity$id
-
-      message("\nSubmitting prediction to challenge evaluation queue...\n")
+      
+      switch_user(submitter_id)
+      cat(crayon::yellow(
+        "\n\nSubmitting prediction to challenge evaluation queue...\n"
+      ))
       submission_object <- synapser::synSubmit(
-        eval_id = "9614112",
+        evaluation = "9614112",
         entity = submission_entity
       )
+      submission_entity_id <- submission_object$entityId
+      submission_id <- submission_object$id
     } else {
       submission_entity_id <- "<pending; dry-run only>"
       submission_id <- "<pending; dry-run only>"
     }
-
+    
+    switch_user("svc")
+    
     submit_msg <- glue::glue(
-      "
+      "\n
       Successfully submitted file: '{filename}'
        > stored as '{entity_id}'
        > submission ID: '{sub_id}'
-
       ",
       filename = submission_filename,
       entity_id = submission_entity_id,
       sub_id = submission_id
     )
-    message(submit_msg)
-
-    cat(crayon::green(crayon::bold(
+    cat(submit_msg)
+    
+    cat(crayon::green(
       success_msg(submission_filename, submission_entity_id, submission_id)
-    )))
+    ))
   }
 }
 
@@ -117,10 +126,10 @@ submit_predictions <- function(
 #' @return None
 confirm_submission <- function() {
   msg <- glue::glue(
-    "\n\nEach team is allotted ONE submission per 24 hours. After submitting
-these predictions, yous will not be able to submit again until tomorrow.
-
-Are you sure you want to submit?
+    "\n
+    Each team is allotted ONE submission per 24 hours. After submitting
+    these predictions, yous will not be able to submit again until tomorrow.
+    \nAre you sure you want to submit?
     "
   )
   menu(c("Yes", "No"), title = crayon::bold(crayon::green(msg)))
@@ -136,11 +145,13 @@ Are you sure you want to submit?
 #' @return
 success_msg <- function(filename, entity_id, sub_id) {
   glue::glue(
-    "You can find the file with your predictions ('{fname}') on your team's
+    "\n\n
+    You can find the file with your predictions ('{fname}') on your team's
     Synapse project at
-    https://www.synapse.org/#!Synapse:{eid}",
-  fname = filename,
-  eid = entity_id
+    https://www.synapse.org/#!Synapse:{eid}
+    \n\n",
+    fname = filename,
+    eid = entity_id
   )
 }
 
@@ -158,11 +169,12 @@ lookup_owner_id <- function(user_id, table_id = "syn17091891") {
 
 switch_user <- function(user) {
   if (user == "svc") {
-    synapser::synLogin()
+    synapser::synLogin(silent = TRUE)
   } else {
     synapser::synLogin(
       email = user,
-      apiKey = Sys.getenv("SYN_API_KEY")
+      apiKey = Sys.getenv("SYN_API_KEY"),
+      silent = TRUE
     )
   }
 }

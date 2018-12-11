@@ -24,7 +24,7 @@ validate_predictions <- function(.data) {
   if(check_results$failures$size() > 0) {
     stop("One or more validation errors encountered; see reasons above.")
   } else {
-    message("All validation checks passed.\n")
+    cat("All validation checks passed.\n")
   }
 }
 
