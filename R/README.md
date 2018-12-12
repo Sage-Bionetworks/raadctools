@@ -31,7 +31,7 @@ d_predictions <- data.frame(
   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
 )
 
-head(prediction_df)
+head(d_predictions)
 ```
 
 ```
@@ -66,7 +66,7 @@ All checks passed.
 
 When you're ready to submit your prediction to the RAAD Challenge evaluation queue, simply run this command:
 ```r
-submit_predictions(prediction_df)
+submit_raadc2(prediction_df)
 ```
 
 You'll be guided through a series with progress messages and prompts. A typical workflow for a first-time user would look like this:
