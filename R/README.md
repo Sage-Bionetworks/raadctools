@@ -1,4 +1,7 @@
-# RAAD Challenge tools for R
+## Overview
+
+The **submitRAADC2** wraps the Synapse R client with convenience functions for submitting predictions to the challenge evaluation queue.
+
 
 ## Installation
 
