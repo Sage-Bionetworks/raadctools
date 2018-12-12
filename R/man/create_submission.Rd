@@ -4,10 +4,11 @@
 \alias{create_submission}
 \title{Create submission file for RAAD Challenge.}
 \usage{
-create_submission(.data, stamp = FALSE, dry_run = FALSE)
+create_submission(predictions, stamp = FALSE, dry_run = FALSE)
 }
 \arguments{
-\item{.data}{A tbl or data frame with participant predictions.}
+\item{predictions}{A dataframe/tibble with two columns, \emph{PatientID} and
+\emph{RespondingSubgroup}.}
 
 \item{stamp}{If `TRUE`, name the file according to user and time; otherwise
 use simple 'predictions.csv' file name.}
@@ -19,5 +20,5 @@ use simple 'predictions.csv' file name.}
     locally saved file.
 }
 \description{
-Writes `.data` to CSV file named with user ID and time stamp.
+Writes `predictions` to CSV file named with user ID and time stamp.
 }

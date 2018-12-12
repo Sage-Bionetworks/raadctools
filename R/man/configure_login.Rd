@@ -4,7 +4,7 @@
 \alias{configure_login}
 \title{Collect and store Synapse login credentials.}
 \usage{
-configure_login()
+configure_login(u)
 }
 \value{
 None

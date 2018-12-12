@@ -4,7 +4,7 @@
 \alias{get_challenge_teams}
 \title{Collect registered challenge team IDs via Synapse REST API.}
 \usage{
-get_challenge_teams()
+get_challenge_teams(challenge_id = "4288")
 }
 \description{
 Collect registered challenge team IDs via Synapse REST API.

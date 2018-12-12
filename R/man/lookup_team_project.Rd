@@ -4,7 +4,7 @@
 \alias{lookup_team_project}
 \title{Look up the project/wiki ID for the specified challenge team.}
 \usage{
-lookup_team_project(team_id)
+lookup_team_project(team_id, table_id = "syn17091912")
 }
 \arguments{
 \item{team_id}{ID (integer string) of the participant's team.}

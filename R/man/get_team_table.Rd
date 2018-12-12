@@ -4,7 +4,7 @@
 \alias{get_team_table}
 \title{Collect registered challenge team IDs from Synapse table.}
 \usage{
-get_team_table()
+get_team_table(table_id = "syn17091912")
 }
 \description{
 Collect registered challenge team IDs from Synapse table.
