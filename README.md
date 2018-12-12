@@ -1,4 +1,4 @@
-# RAAD Challenge tools
+# RAAD Challenge submission tools
 
 [![Travis-CI Build Status](https://travis-ci.com/Sage-Bionetworks/raadctools.svg?token=GuJXrxcZvs4GzZd3iE59&branch=master)](https://travis-ci.com/Sage-Bionetworks/raadctools.svg?token=GuJXrxcZvs4GzZd3iE59&branch=master) 
 
