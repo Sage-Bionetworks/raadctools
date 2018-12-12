@@ -3,12 +3,18 @@
 ## Installation
 
 ```r
-devtools::install_github("Sage-Bionetworks/raadctools", subdir = "R")
+devtools::install_github(
+  "RAADC2019/submitRAADC2", 
+  subdir = "R",
+  host = "https://github.roche.com/api/v3"
+)
 ```
 
-The **`raadctools`** package should be loaded by default when you start a R new session in the **Portable Analytics** platform. If not, use this command to get started:
+**Note:** This package uses the [**getRAADC2**](https://github.roche.com/RAADC2019/getRAADC2) package for functions related to validating data.
+
+The **`submitRAADC2`** package should be loaded by default when you start a R new session in the **Portable Analytics** platform. If not, use this command to get started:
 ```r
-library(raadctools)
+library(submitRAADC2)
 ```
 
 ## Administrative setup
