@@ -6,7 +6,8 @@
 #'
 #' @param predictions A dataframe/tibble with two columns, \emph{PatientID} and
 #'     \emph{RespondingSubgroup}.
-#' @param submitter_id Participant Synapse ID or registered email.
+#' @param submitter_id Participant Synapse registered email. If not provided,
+#'     user will be prompted for email before submission.
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
 #' @param skip_validation If `TRUE`, skip formatting checks and submit data
@@ -26,13 +27,17 @@
 #'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
 #' )
 #'
-#' # Submitting predictions for team "1234567" and team project "syn16810564"
+#' # Submitting predictions for user "synuser@gene.com"
 #'
-#' submit_predictions(d_predictions, "1234567", "syn16810564")
+#' submit_predictions(d_predictions, submitter_id = "synuser@gene.com")
 #'
 #' # To validate data only but not submit:
-#' submit_predictions(d_predictions, "1234567", "syn16810564",
+#' submit_predictions(d_predictions, submitter_id = "synuser@gene.com",
 #'                    validate_only = TRUE)
+# 
+#' # To simulate submission process without uploading or submitting data:
+#' submit_predictions(d_predictions, submitter_id = "synuser@gene.com",
+#'                    dry_run = TRUE)
 #'}
 submit_raadc2 <- function(
   predictions,
@@ -53,11 +58,17 @@ submit_raadc2 <- function(
   if (!validate_only) {
     switch_user("svc")
     
+    if (is.null(submitter_id)) {
+      print("hello")
+      submitter_id <- get_user_email()
+    }
+    
     if (is.na(as.integer(submitter_id))) {
       owner_id <- lookup_owner_id(submitter_id)
     } else {
       owner_id <- submitter_id
     }
+    
     # synapser::synLogin()
     # user_profile <- synapser::synGetUserProfile()
     # user_profile <- jsonlite::fromJSON(user_profile$json())
@@ -80,7 +91,6 @@ submit_raadc2 <- function(
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    print(dry_run)
     submission_filename <- create_submission(predictions, dry_run = dry_run)
     
     if (!dry_run) {
@@ -180,14 +190,18 @@ lookup_owner_id <- function(user_id, table_id = "syn17091891") {
 }
 
 switch_user <- function(user) {
-  if (user == "svc") {
-    synapser::synLogin(silent = TRUE)
-  } else {
-    synapser::synLogin(
-      email = user,
-      apiKey = Sys.getenv("SYN_API_KEY"),
-      silent = TRUE
-    )
-  }
+  msg <- capture.output(
+    if (user == "svc") {
+      synapser::synLogin(silent = TRUE)
+    } else {
+      tryCatch(
+        synapser::synLogin(
+          email = user,
+          silent = TRUE
+        ),
+        error = function(e) configure_login(user)
+      )
+    }
+  )
 }
 

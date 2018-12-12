@@ -6,7 +6,6 @@
 #' @param .data A tbl or data frame with participant predictions.
 #'
 #' @return None
-#' @export
 #'
 #' @examples
 #' # Example prediction data frame
