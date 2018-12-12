@@ -52,14 +52,14 @@ submit_raadc2 <- function(
     cat(crayon::yellow(
       "\nRunning checks to validate data frame format...\n\n"
     ))
-    getRAADC2::validate_predictions(predictions)
+    valid <- getRAADC2::validate_predictions(predictions)
+    if(valid) {cat(crayon::green("All checks passed."))}
   }
   
   if (!validate_only) {
     switch_user("svc")
     
     if (is.null(submitter_id)) {
-      print("hello")
       submitter_id <- get_user_email()
     }
     
@@ -190,18 +190,20 @@ lookup_owner_id <- function(user_id, table_id = "syn17091891") {
 }
 
 switch_user <- function(user) {
-  msg <- capture.output(
-    if (user == "svc") {
+  if (user == "svc") {
+    msg <- capture.output(
       synapser::synLogin(silent = TRUE)
-    } else {
-      tryCatch(
+    )
+  } else {
+    tryCatch(
+      msg <- capture.output(
         synapser::synLogin(
           email = user,
           silent = TRUE
-        ),
-        error = function(e) configure_login(user)
-      )
-    }
-  )
+        )
+      ),
+      error = function(e) configure_login(user)
+    )
+  }
 }
 

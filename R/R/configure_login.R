@@ -18,13 +18,17 @@ https://www.synapse.org/#!Synapse:syn16910051/wiki/584268\n\n
   )
   cat(key_msg)
   k <- readline(prompt = "API key: ")
-
-  synapser::synLogin(email = u, apiKey = k, rememberMe = TRUE)
+  msg <- capture.output(
+    synapser::synLogin(email = u, apiKey = k, rememberMe = TRUE)
+  )
 }
 
 get_user_email <- function() {
   user_msg <- glue::glue(
-    "Your username should be the same as what you use to log into Synapse
+    "\n\n
+    Enter your Synapse user email.
+
+    Your username should be the same as what you use to log into Synapse
     with your Google credentials, for example:
     'adamsd42@gene.com' or 'smith.joe@roche.com'\n\n
     "
