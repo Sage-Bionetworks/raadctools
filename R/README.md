@@ -13,6 +13,13 @@ devtools::install_github(
 )
 ```
 
+Alternatively, use these steps in the terminal to install the package:
+```
+git clone https://github.roche.com/RAADC2019/submitRAADC2
+cd R
+Rscript -e 'devtools::install()'
+```
+
 **Note:** This package uses the [**getRAADC2**](https://github.roche.com/RAADC2019/getRAADC2) package for functions related to validating data.
 
 The **`submitRAADC2`** package should be loaded by default when you start a R new session in the **Portable Analytics** platform. If not, use this command to get started:
