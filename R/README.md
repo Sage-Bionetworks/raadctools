@@ -16,7 +16,7 @@ devtools::install_github(
 Alternatively, use these steps in the terminal to install the package:
 ```
 git clone https://github.roche.com/RAADC2019/submitRAADC2
-cd R
+cd submitRAADC2/R
 Rscript -e 'devtools::install()'
 ```
 
