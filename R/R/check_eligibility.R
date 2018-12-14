@@ -7,7 +7,7 @@
 check_eligibility <- function(team_id, owner_id) {
   team_name <- synapser::synGetTeam(team_id)[["name"]]
   
-  eligibility_data <- get_eligibility_data(team_id, owner_id)
+  eligibility_data <- get_eligibility_data(team_id)
 
   team_eligibility <- get_team_eligibility(eligibility_data)
 

@@ -44,6 +44,8 @@ submit_raadc2 <- function(
   submitter_id = NULL,
   validate_only = FALSE,
   skip_validation = FALSE,
+  skip_eligibility_checks = FALSE,
+  confirm_submit = TRUE,
   dry_run = FALSE
 ) {
   suppressWarnings({
@@ -76,18 +78,22 @@ submit_raadc2 <- function(
     
     team_info <- get_team_info(owner_id)
     
-    switch_user(submitter_id)
-    cat(crayon::yellow("\nChecking ability to submit...\n\n"))
-    is_eligible <- check_eligibility(team_info$team_id, owner_id)
-    is_certified <- TRUE # check_certification(owner_id)
-    if (!is_eligible | !is_certified) {
-      switch_user("svc")
-      stop("\nExiting submission attempt.", call. = FALSE)
+    if (!skip_eligibility_checks) {
+      switch_user(submitter_id)
+      cat(crayon::yellow("\nChecking ability to submit...\n\n"))
+      is_eligible <- check_eligibility(team_info$team_id, owner_id)
+      is_certified <- TRUE # check_certification(owner_id)
+      if (!is_eligible | !is_certified) {
+        switch_user("svc")
+        stop("\nExiting submission attempt.", call. = FALSE)
+      }
     }
     
-    if (confirm_submission() == 2) {
-      switch_user("svc")
-      stop("\nExiting submission attempt.", call. = FALSE)
+    if (confirm_submit) {
+      if (confirm_submission() == 2) {
+        switch_user("svc")
+        stop("\nExiting submission attempt.", call. = FALSE)
+      }
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
