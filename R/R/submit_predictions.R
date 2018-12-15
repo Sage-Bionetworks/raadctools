@@ -54,32 +54,26 @@ submit_raadc2 <- function(
     cat(crayon::yellow(
       "\nRunning checks to validate data frame format...\n\n"
     ))
-    valid <- getRAADC2::validate_predictions(predictions)
+    valid <- getRAADC2:::validate_predictions(predictions)
     if(valid) {cat(crayon::green("All checks passed."))}
   }
   
   if (!validate_only) {
-    switch_user("svc")
-    
+
     if (is.null(submitter_id)) {
-      submitter_id <- get_user_email()
+      submitter_id <- collect_user_email()
     }
+    synapse_login(submitter_id)
     
     if (is.na(as.integer(submitter_id))) {
-      owner_id <- lookup_owner_id(submitter_id)
+      owner_id <- lookup_owner_id()
     } else {
       owner_id <- submitter_id
     }
     
-    # synapser::synLogin()
-    # user_profile <- synapser::synGetUserProfile()
-    # user_profile <- jsonlite::fromJSON(user_profile$json())
-    # owner_id <- user_profile$ownerId
-    
     team_info <- get_team_info(owner_id)
     
     if (!skip_eligibility_checks) {
-      switch_user(submitter_id)
       cat(crayon::yellow("\nChecking ability to submit...\n\n"))
       is_eligible <- check_eligibility(team_info$team_id, owner_id)
       is_certified <- TRUE # check_certification(owner_id)
@@ -91,7 +85,6 @@ submit_raadc2 <- function(
     
     if (confirm_submit) {
       if (confirm_submission() == 2) {
-        switch_user("svc")
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
@@ -126,8 +119,6 @@ submit_raadc2 <- function(
       submission_entity_id <- "<pending; dry-run only>"
       submission_id <- "<pending; dry-run only>"
     }
-    
-    switch_user("svc")
     
     submit_msg <- glue::glue(
       "\n
@@ -183,17 +174,6 @@ success_msg <- function(filename, entity_id, sub_id) {
   )
 }
 
-#' Look up the owner ID for Synapse user.
-#'
-#' @param user_id registered email of the participant.
-#'
-#' @return String with Synapse ID for team project.
-lookup_owner_id <- function(user_id, table_id = "syn17091891") {
-  table_query <- glue::glue("SELECT * FROM {table} WHERE userEmail = '{id}'",
-                            table = table_id, id = user_id)
-  res <- invisible(synapser::synTableQuery(table_query))
-  purrr::pluck(res$asDataFrame(), "userId")
-}
 
 switch_user <- function(user) {
   if (user == "svc") {
