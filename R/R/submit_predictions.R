@@ -52,7 +52,7 @@ submit_raadc2 <- function(
     cat(crayon::yellow(
       "\nRunning checks to validate data frame format...\n\n"
     ))
-    valid <- getRAADC2::validate_predictions(predictions)
+    valid <- getRAADC2:::validate_predictions(predictions)
     if(valid) {cat(crayon::green("All checks passed."))}
   }
   
