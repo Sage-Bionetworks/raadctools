@@ -18,9 +18,11 @@ get_team_info <- function(owner_id) {
     purrr::discard(~ stringr::str_detect(., "(Participants|Admin)")) %>% 
     purrr::keep(~ stringr::str_detect(., "RAAD2 "))
   
+  team_folder_id <- .lookup_prediction_folder(raad2_team[[1]])
+  
   list(team_id = names(raad2_team)[1],
-       team_name = raad2_team[[1]])
-  # team_folder_id <- lookup_prediction_folder(team_project_id)
+       team_name = raad2_team[[1]],
+       folder_id = team_folder_id)
 }
 
 
@@ -37,11 +39,13 @@ get_team_info <- function(owner_id) {
 
 #' Look up folder ID where prediction file is to be stored.
 #'
-#' @param project_id Synapse ID of team's submission project.
+#' @param team_name Synapse team name.
 #'
 #' @return String with Synapse ID for submission folder.
-.lookup_prediction_folder <- function(project_id) {
-  project_items <- synapser::synGetChildren(project_id)$asList()
-  prediction_folder <- purrr::keep(project_items, ~ .$name == "Prediction File")
+.lookup_prediction_folder <- function(team_name) {
+  submission_folder <- "syn17097318"
+  team_name <- stringr::str_replace(team_name, "^RAAD2 ", "")
+  folder_items <- synapser::synGetChildren(submission_folder)$asList()
+  prediction_folder <- purrr::keep(folder_items, ~ .$name == team_name)
   purrr::flatten(prediction_folder)$id
 }
