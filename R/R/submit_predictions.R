@@ -12,6 +12,8 @@
 #'     don't submit to the challenge.
 #' @param skip_validation If `TRUE`, skip formatting checks and submit data
 #'     to the challenge.
+#' @param skip_eligibility_checks
+#' @param confirm_submit
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
 #'     data in Synapse.
 #'
@@ -61,12 +63,12 @@ submit_raadc2 <- function(
   if (!validate_only) {
 
     if (is.null(submitter_id)) {
-      submitter_id <- collect_user_email()
+      submitter_id <- .collect_user_email()
     }
     synapse_login(submitter_id)
     
     if (is.na(as.integer(submitter_id))) {
-      owner_id <- lookup_owner_id()
+      owner_id <- .lookup_owner_id()
     } else {
       owner_id <- submitter_id
     }
@@ -76,7 +78,7 @@ submit_raadc2 <- function(
     if (!skip_eligibility_checks) {
       cat(crayon::yellow("\nChecking ability to submit...\n\n"))
       is_eligible <- check_eligibility(team_info$team_id, owner_id)
-      is_certified <- TRUE # check_certification(owner_id)
+      is_certified <- TRUE # .check_certification(owner_id)
       if (!is_eligible | !is_certified) {
         switch_user("svc")
         stop("\nExiting submission attempt.", call. = FALSE)
@@ -84,13 +86,13 @@ submit_raadc2 <- function(
     }
     
     if (confirm_submit) {
-      if (confirm_submission() == 2) {
+      if (.confirm_submission() == 2) {
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    submission_filename <- create_submission(predictions, dry_run = dry_run)
+    submission_filename <- .create_submission(predictions, dry_run = dry_run)
     
     if (!dry_run) {
       switch_user("svc")
@@ -133,7 +135,7 @@ submit_raadc2 <- function(
     cat(submit_msg)
     
     cat(crayon::green(
-      success_msg(submission_filename, submission_entity_id, submission_id)
+      .success_msg(submission_filename, submission_entity_id, submission_id)
     ))
   }
   })
@@ -143,7 +145,7 @@ submit_raadc2 <- function(
 #' Prompt user to verify whether they want to submit to challenge.
 #'
 #' @return None
-confirm_submission <- function() {
+.confirm_submission <- function() {
   msg <- glue::glue(
     "\n
     Each team is allotted ONE submission per 24 hours. After submitting
@@ -162,7 +164,7 @@ confirm_submission <- function() {
 #' @param sub_id
 #'
 #' @return
-success_msg <- function(filename, entity_id, sub_id) {
+.success_msg <- function(filename, entity_id, sub_id) {
   glue::glue(
     "\n\n
     You can find the file with your predictions ('{fname}') on your team's
