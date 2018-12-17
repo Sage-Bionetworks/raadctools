@@ -97,14 +97,13 @@ submit_raadc2 <- function(
     if (!dry_run) {
       switch_user("svc")
       cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
-      submission_entity <- synapser::synStore(
-        synapser::File(
-          path = submission_filename,
-          parentId = team_info$folder_id
-        )
+      submission_entity <- .upload_predictions(
+        submission_filename,
+        team_info
       )
       
       submission_entity_id <- submission_entity$id
+      submission_entity_version <- submission_entity$version
       
       switch_user(submitter_id)
       cat(crayon::yellow(
@@ -112,10 +111,9 @@ submit_raadc2 <- function(
       ))
       submission_object <- synapser::synSubmit(
         evaluation = "9614112",
-        entity = submission_entity,
+        entity = submission_entity$id,
         team = synapser::synGetTeam(team_info$team_id)
       )
-      submission_entity_id <- submission_object$entityId
       submission_id <- submission_object$id
     } else {
       submission_entity_id <- "<pending; dry-run only>"
@@ -125,11 +123,12 @@ submit_raadc2 <- function(
     submit_msg <- glue::glue(
       "\n
       Successfully submitted file: '{filename}'
-       > stored as '{entity_id}'
+       > stored as '{entity_id}' [version: {version}]
        > submission ID: '{sub_id}'
       ",
       filename = submission_filename,
       entity_id = submission_entity_id,
+      version = submission_entity_version,
       sub_id = submission_id
     )
     cat(submit_msg)
