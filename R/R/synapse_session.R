@@ -9,7 +9,7 @@ synapse_login <- function(user) {
         silent = TRUE
       )
     ),
-    error = function(e) configure_login(user)
+    error = function(e) .configure_login(user)
   )
 }
 

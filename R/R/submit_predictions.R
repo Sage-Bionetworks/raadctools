@@ -65,7 +65,14 @@ submit_raadc2 <- function(
     if (is.null(submitter_id)) {
       submitter_id <- .collect_user_email()
     }
-    synapse_login(submitter_id)
+    
+    tryCatch(
+      msg <- capture.output(
+        synapser::synGetUserProfile()
+      ),
+      error = function(e) synapse_login(submitter_id)
+    )
+   
     
     if (is.na(as.integer(submitter_id))) {
       owner_id <- .lookup_owner_id()
@@ -117,6 +124,7 @@ submit_raadc2 <- function(
       submission_id <- submission_object$id
     } else {
       submission_entity_id <- "<pending; dry-run only>"
+      submission_entity_version <- "TBD"
       submission_id <- "<pending; dry-run only>"
     }
     

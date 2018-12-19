@@ -25,7 +25,6 @@
   }
 }
 
-
 .fetch_submission_entity <- function(folder_id, submission_filename) {
   folder_items <- synapser::synGetChildren(folder_id)$asList()
   submission_entity <- purrr::keep(
