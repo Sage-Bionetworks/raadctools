@@ -1,13 +1,22 @@
-# RAAD Challenge tools for R
+## Overview
+
+The **submitRAADC2** wraps the Synapse R client with convenience functions for submitting predictions to the challenge evaluation queue.
+
 
 ## Installation
 
 ```r
 devtools::install_github(
   "RAADC2019/submitRAADC2", 
-  subdir = "R",
-  host = "https://github.roche.com/api/v3"
+  subdir = "R"
 )
+```
+
+Alternatively, use these steps in the terminal to install the package:
+```
+git clone https://github.com/Sage-Bionetworks/raadctools
+cd raadctools/R
+Rscript -e 'devtools::install()'
 ```
 
 **Note:** This package uses the [**getRAADC2**](https://github.roche.com/RAADC2019/getRAADC2) package for functions related to validating data.
@@ -31,7 +40,7 @@ d_predictions <- data.frame(
   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
 )
 
-head(prediction_df)
+head(d_predictions)
 ```
 
 ```
@@ -66,7 +75,7 @@ All checks passed.
 
 When you're ready to submit your prediction to the RAAD Challenge evaluation queue, simply run this command:
 ```r
-submit_predictions(prediction_df)
+submit_raadc2(prediction_df)
 ```
 
 You'll be guided through a series with progress messages and prompts. A typical workflow for a first-time user would look like this:
