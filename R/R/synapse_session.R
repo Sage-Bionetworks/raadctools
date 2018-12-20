@@ -1,7 +1,22 @@
-#' Collect and store Synapse login credentials.
+#' Convenience wrapper function for Synapse login.
 #'
 #' @return None
-configure_login <- function(u) {
+synapse_login <- function(user) {
+  tryCatch(
+    msg <- capture.output(
+      synapser::synLogin(
+        email = user,
+        silent = TRUE
+      )
+    ),
+    error = function(e) .configure_login(user)
+  )
+}
+
+#' Guide user through Synapse login steps.
+#'
+#' @return None
+.configure_login <- function(u) {
   new_msg <- glue::glue(
     "\n\nIt looks like this is your first time connecting to Synapse from this
 machine. Let's store your credentials so that you won't need to enter
@@ -23,7 +38,10 @@ https://www.synapse.org/#!Synapse:syn16910051/wiki/584268\n\n
   )
 }
 
-get_user_email <- function() {
+#' Collect and store registered Synapse email.
+#'
+#' @return String with user's email address.
+.collect_user_email <- function() {
   user_msg <- glue::glue(
     "\n\n
     Enter your Synapse user email.
@@ -35,4 +53,13 @@ get_user_email <- function() {
   )
   cat(user_msg)
   readline(prompt = "Username: ")
+}
+
+#' Look up the owner ID for Synapse user.
+#'
+#' @return String with Synapse ID for team project.
+.lookup_owner_id <- function() {
+  user_profile <- synapser::synGetUserProfile()
+  user_profile <- jsonlite::fromJSON(user_profile$json())
+  user_profile$ownerId
 }

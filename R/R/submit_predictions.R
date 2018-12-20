@@ -12,6 +12,8 @@
 #'     don't submit to the challenge.
 #' @param skip_validation If `TRUE`, skip formatting checks and submit data
 #'     to the challenge.
+#' @param skip_eligibility_checks
+#' @param confirm_submit
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
 #'     data in Synapse.
 #'
@@ -44,6 +46,8 @@ submit_raadc2 <- function(
   submitter_id = NULL,
   validate_only = FALSE,
   skip_validation = FALSE,
+  skip_eligibility_checks = FALSE,
+  confirm_submit = TRUE,
   dry_run = FALSE
 ) {
   suppressWarnings({
@@ -57,53 +61,56 @@ submit_raadc2 <- function(
   }
   
   if (!validate_only) {
-    switch_user("svc")
-    
+
     if (is.null(submitter_id)) {
-      submitter_id <- get_user_email()
+      submitter_id <- .collect_user_email()
     }
     
+    tryCatch(
+      msg <- capture.output(
+        synapser::synGetUserProfile()
+      ),
+      error = function(e) synapse_login(submitter_id)
+    )
+   
+    
     if (is.na(as.integer(submitter_id))) {
-      owner_id <- lookup_owner_id(submitter_id)
+      owner_id <- .lookup_owner_id()
     } else {
       owner_id <- submitter_id
     }
     
-    # synapser::synLogin()
-    # user_profile <- synapser::synGetUserProfile()
-    # user_profile <- jsonlite::fromJSON(user_profile$json())
-    # owner_id <- user_profile$ownerId
-    
     team_info <- get_team_info(owner_id)
     
-    switch_user(submitter_id)
-    cat(crayon::yellow("\nChecking ability to submit...\n\n"))
-    is_eligible <- check_eligibility(team_info$team_id, owner_id)
-    is_certified <- TRUE # check_certification(owner_id)
-    if (!is_eligible | !is_certified) {
-      switch_user("svc")
-      stop("\nExiting submission attempt.", call. = FALSE)
+    if (!skip_eligibility_checks) {
+      cat(crayon::yellow("\nChecking ability to submit...\n\n"))
+      is_eligible <- check_eligibility(team_info$team_id, owner_id)
+      is_certified <- TRUE # .check_certification(owner_id)
+      if (!is_eligible | !is_certified) {
+        switch_user("svc")
+        stop("\nExiting submission attempt.", call. = FALSE)
+      }
     }
     
-    if (confirm_submission() == 2) {
-      switch_user("svc")
-      stop("\nExiting submission attempt.", call. = FALSE)
+    if (confirm_submit) {
+      if (.confirm_submission() == 2) {
+        stop("\nExiting submission attempt.", call. = FALSE)
+      }
     }
     
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    submission_filename <- create_submission(predictions, dry_run = dry_run)
+    submission_filename <- .create_submission(predictions, dry_run = dry_run)
     
     if (!dry_run) {
       switch_user("svc")
       cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
-      submission_entity <- synapser::synStore(
-        synapser::File(
-          path = submission_filename,
-          parentId = team_info$folder_id
-        )
+      submission_entity <- .upload_predictions(
+        submission_filename,
+        team_info
       )
       
       submission_entity_id <- submission_entity$id
+      submission_entity_version <- submission_entity$version
       
       switch_user(submitter_id)
       cat(crayon::yellow(
@@ -111,32 +118,31 @@ submit_raadc2 <- function(
       ))
       submission_object <- synapser::synSubmit(
         evaluation = "9614112",
-        entity = submission_entity,
+        entity = submission_entity$id,
         team = synapser::synGetTeam(team_info$team_id)
       )
-      submission_entity_id <- submission_object$entityId
       submission_id <- submission_object$id
     } else {
       submission_entity_id <- "<pending; dry-run only>"
+      submission_entity_version <- "TBD"
       submission_id <- "<pending; dry-run only>"
     }
-    
-    switch_user("svc")
     
     submit_msg <- glue::glue(
       "\n
       Successfully submitted file: '{filename}'
-       > stored as '{entity_id}'
+       > stored as '{entity_id}' [version: {version}]
        > submission ID: '{sub_id}'
       ",
       filename = submission_filename,
       entity_id = submission_entity_id,
+      version = submission_entity_version,
       sub_id = submission_id
     )
     cat(submit_msg)
     
     cat(crayon::green(
-      success_msg(submission_filename, submission_entity_id, submission_id)
+      .success_msg(submission_filename, submission_entity_id, submission_id)
     ))
   }
   })
@@ -146,7 +152,7 @@ submit_raadc2 <- function(
 #' Prompt user to verify whether they want to submit to challenge.
 #'
 #' @return None
-confirm_submission <- function() {
+.confirm_submission <- function() {
   msg <- glue::glue(
     "\n
     Each team is allotted ONE submission per 24 hours. After submitting
@@ -165,7 +171,7 @@ confirm_submission <- function() {
 #' @param sub_id
 #'
 #' @return
-success_msg <- function(filename, entity_id, sub_id) {
+.success_msg <- function(filename, entity_id, sub_id) {
   glue::glue(
     "\n\n
     You can find the file with your predictions ('{fname}') on your team's
@@ -177,17 +183,6 @@ success_msg <- function(filename, entity_id, sub_id) {
   )
 }
 
-#' Look up the owner ID for Synapse user.
-#'
-#' @param user_id registered email of the participant.
-#'
-#' @return String with Synapse ID for team project.
-lookup_owner_id <- function(user_id, table_id = "syn17091891") {
-  table_query <- glue::glue("SELECT * FROM {table} WHERE userEmail = '{id}'",
-                            table = table_id, id = user_id)
-  res <- invisible(synapser::synTableQuery(table_query))
-  purrr::pluck(res$asDataFrame(), "userId")
-}
 
 switch_user <- function(user) {
   if (user == "svc") {

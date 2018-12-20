@@ -8,13 +8,13 @@ The **submitRAADC2** wraps the Synapse R client with convenience functions for s
 ```r
 devtools::install_github(
   "RAADC2019/submitRAADC2", 
-  subdir = "R",
-  host = "https://github.roche.com/api/v3"
+  subdir = "R"
 )
 ```
 
 Alternatively, use these steps in the terminal to install the package:
 ```
+
 git clone https://github.roche.com/RAADC2019/submitRAADC2
 cd submitRAADC2/R
 Rscript -e 'devtools::install()'

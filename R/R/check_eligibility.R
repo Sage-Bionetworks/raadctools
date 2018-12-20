@@ -7,28 +7,31 @@
 check_eligibility <- function(team_id, owner_id) {
   team_name <- synapser::synGetTeam(team_id)[["name"]]
   
-  eligibility_data <- get_eligibility_data(team_id, owner_id)
+  eligibility_data <- .get_eligibility_data(team_id)
 
-  team_eligibility <- get_team_eligibility(eligibility_data)
+  team_eligibility <- .get_team_eligibility(eligibility_data)
 
-  owner_eligibility <- get_owner_eligibility(eligibility_data, owner_id)
+  owner_eligibility <- .get_owner_eligibility(eligibility_data, owner_id)
 
   cat(glue::glue(
     crayon::bold(" > Team: ") %+% "{team_msg}\n\n",
-    team_msg = glue::glue(team_eligibility_msg(team_eligibility),
-                                 name = team_name)
+    team_msg = glue::glue(.team_eligibility_msg(team_eligibility),
+                          name = team_name)
   ))
   if (team_eligibility$isEligible) {
     cat(glue::glue(
       crayon::bold(" > User: ") %+% "{owner_msg}\n\n",
-      owner_msg = owner_eligibility_msg(owner_eligibility)
+      owner_msg = .owner_eligibility_msg(owner_eligibility)
     ))
   }
 
   team_eligibility$isEligible & owner_eligibility$isEligible
 }
 
-get_eligibility_data <- function(team_id) {
+#' Collect eligibility data for a team and its members.
+#'
+#' @param team_id ID (integer string) of the participant's team.
+.get_eligibility_data <- function(team_id) {
   eval_id <- "9614112"
   eligibility_data <- synapser::synRestGET(
     glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
@@ -36,11 +39,13 @@ get_eligibility_data <- function(team_id) {
   )
 }
 
-get_team_eligibility <- function(eligibility_data) {
+#' Parse eligibility data to check overall team elibility.
+.get_team_eligibility <- function(eligibility_data) {
   tibble::as_tibble(eligibility_data$teamEligibility)
 }
 
-get_owner_eligibility <- function(eligibility_data, owner_id) {
+#' Parse eligibility data to check participant elibility.
+.get_owner_eligibility <- function(eligibility_data, owner_id) {
   eligibility_data$membersEligibility %>%
     purrr::map_df(tibble::as_tibble) %>%
     dplyr::filter(principalId == owner_id)
@@ -52,7 +57,7 @@ get_owner_eligibility <- function(eligibility_data, owner_id) {
 #'
 #' @return String summarizing eligibility status and any reasons that team
 #'     might currently be ineligible to submit.
-team_eligibility_msg <- function(.data) {
+.team_eligibility_msg <- function(.data) {
   .data %>%
     dplyr::mutate(
       eligible_msg = dplyr::if_else(
@@ -83,7 +88,7 @@ team_eligibility_msg <- function(.data) {
 #'
 #' @return String summarizing eligibility status and any reasons that user
 #'     might currently be ineligible to submit.
-owner_eligibility_msg <- function(.data) {
+.owner_eligibility_msg <- function(.data) {
   .data %>%
     dplyr::mutate(
       eligible_msg = dplyr::if_else(

@@ -10,7 +10,7 @@
 #'
 #' @return `create_submission()` returns a string with the file name for the
 #'     locally saved file.
-create_submission <- function(predictions, stamp = FALSE, dry_run = FALSE) {
+.create_submission <- function(predictions, stamp = FALSE, dry_run = FALSE) {
   if (stamp) {
     suppressWarnings(
       time_stamp <- strftime(
