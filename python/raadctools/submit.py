@@ -3,6 +3,7 @@ from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
 import pandas as pd
 raadctools = importr("submitRAADC2")
+from distutils.util import strtobool
 
 
 def submit_predictions(prediction_filepath, validate_only=False, dry_run=False):
@@ -14,6 +15,13 @@ def submit_predictions(prediction_filepath, validate_only=False, dry_run=False):
 		validate_only: If 'True', check data for any formatting errors but don't submit to the challenge.
 		dry_run: If ‘TRUE', execute submission steps, but don’t store any data in Synapse. 
 	'''
+	username = input("Synapse username:")
+	apikey = input("apiKey:")
+	try:
+		confirmation = input("y/n:")
+		confirmation = strtobool(confirmation)
+	except ValueError as e:
+		raise ValueError("Please answer with y/n")
 	predictiondf = ro.r['read.csv'](prediction_filepath)
 	raadctools.submit_raadc2(predictiondf, validate_only=validate_only, dry_run=dry_run)
 
