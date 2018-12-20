@@ -14,5 +14,5 @@ raadctools submit prediction.csv -v
 
 ```
 import raadctools
-raadctools.submit.submit_raadc2("prediction.csv",validate_only=True)
+raadctools.submit.submit_predictions("prediction.csv",validate_only=True)
 ```
