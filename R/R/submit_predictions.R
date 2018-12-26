@@ -63,7 +63,7 @@ submit_raadc2 <- function(
   if (!validate_only) {
 
     if (is.null(submitter_id)) {
-      submitter_id <- .collect_user_email()
+      submitter_id <- .user_email_prompt()
     }
     
     tryCatch(
@@ -93,7 +93,7 @@ submit_raadc2 <- function(
     }
     
     if (confirm_submit) {
-      if (.confirm_submission() == 2) {
+      if (.confirm_prompt() == 2) {
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
@@ -149,17 +149,21 @@ submit_raadc2 <- function(
 }
 
 
-#' Prompt user to verify whether they want to submit to challenge.
-#'
-#' @return None
-.confirm_submission <- function() {
-  msg <- glue::glue(
+.confirm_prompt_text <- function() {
+  glue::glue(
     "\n
     Each team is allotted ONE submission per 24 hours. After submitting
     these predictions, you will not be able to submit again until tomorrow.
     \nAre you sure you want to submit?
     "
   )
+}
+
+#' Prompt user to verify whether they want to submit to challenge.
+#'
+#' @return None
+.confirm_prompt <- function() {
+  msg <- .confirm_prompt_text()
   menu(c("Yes", "No"), title = crayon::bold(crayon::green(msg)))
 }
 
