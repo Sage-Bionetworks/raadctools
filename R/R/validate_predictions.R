@@ -1,54 +1,50 @@
-#' Check prediction data for formatting errors.
+#' Validate RAADC 2.0 predictions
 #'
-#' Validates prediction data frame (`.data`) to check for any formatting
-#' errors.
+#' \code{validate_predictions} takes a set of predictions and checks for any
+#' formatting errors.
 #'
-#' @param .data A tbl or data frame with participant predictions.
+#' @param predictions A dataframe/tibble with two columns, \emph{PatientID} and
+#' \emph{RespondingSubgroup}.
 #'
-#' @return None
-#'
+#' @param subset_patientids Vector of patientids, if you only want to include
+#' specific patients in the scoring process. This is used to do the 20% scoring
+#' for the leaderboard.
+#' 
+#' @return If all checks pass, return TRUE; otherwise, raise an error.
+#' 
 #' @examples
-#' # Example prediction data frame
-#' prediction_df <- data.frame(
-#'     Subject = seq_len(100),
-#'     SubPopulation = rep_len(c("Y", "N"), 50)
+#'
+#' paste("Validate example 1")
+#' set.seed(2018)
+#' d_predictions <- data.frame(
+#'   PatientID = paste0("Pat",1:400),
+#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
 #' )
 #'
-#' validate_predictions(prediction_df)
-validate_predictions <- function(.data) {
-  check_results <- testthat::with_reporter(
-    testthat::SummaryReporter,
-    run_checks(.data)
-  )
-  if(check_results$failures$size() > 0) {
-    stop("One or more validation errors encountered; see reasons above.")
-  } else {
-    cat("All validation checks passed.\n")
-  }
-}
-
-
-#' Define cases and expectations for formatting checks.
+#' validate_predictions(d_predictions)
 #'
-#' @param .data A tbl or data frame with participant predictions.
+#' paste("Validate example 2")
 #'
-#' @return None
-run_checks <- function(.data) {
-  col_names <- c("Subject", "SubPopulation")
-  testthat::test_that(
-    glue::glue("prediction data frame must have columns [{c}]",
-               c = stringr::str_c(col_names, collapse = ", ")),
-    {testthat::expect_named(.data, col_names, ignore.order = TRUE)}
+#' validate_predictions(
+#'   getRAADC2::d_predictions_harbron
+#' )
+#'
+validate_predictions <- function(predictions) {
+  # colnames correct
+  if(paste(colnames(predictions),collapse = ":") != c("PatientID:RespondingSubgroup")) stop(
+    "Predictions not of the format PatientID,RespondingSubgroup"
   )
-
-  testthat::test_that(
-    "'Subject' column must be ordered sequence of integers from 1 to N",
-    {subject_col <- .data$Subject
-     testthat::expect_equal(subject_col, seq_len(length(subject_col)))}
+  
+  # check values
+  if (
+    paste(sort(unique(predictions$RespondingSubgroup)),collapse = ":") != c("Chemo:Tecentriq")
+  ) {stop("Predictions should be converted to Chemo, Tecentriq")}
+  
+  # 20 to 80% in Tecentriq
+  test_pro <- sum(predictions$RespondingSubgroup == "Tecentriq") / nrow(predictions)
+  if (test_pro < 0.2 | test_pro > 0.8) stop(
+    "Proportion in subgroup is not between 20 and 80%"
   )
-
-  testthat::test_that(
-    "'SubPopulation' column must only contain character values 'Y' or 'N'",
-    {testthat::expect_true(all(.data$SubPopulation %in% c("Y", "N")))}
-  )
+  
+  return(TRUE)
 }
