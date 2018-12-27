@@ -48,7 +48,8 @@ submit_raadc2 <- function(
   skip_validation = FALSE,
   skip_eligibility_checks = FALSE,
   confirm_submit = TRUE,
-  dry_run = FALSE
+  dry_run = FALSE,
+  syn = GLOBAL_SYN
 ) {
   suppressWarnings({
   
@@ -56,7 +57,7 @@ submit_raadc2 <- function(
     cat(crayon::yellow(
       "\nRunning checks to validate data frame format...\n\n"
     ))
-    valid <- getRAADC2:::validate_predictions(predictions)
+    valid <- validate_predictions(predictions)
     if(valid) {cat(crayon::green("All checks passed."))}
   }
   
@@ -68,39 +69,38 @@ submit_raadc2 <- function(
     
     tryCatch(
       msg <- capture.output(
-        synapser::synGetUserProfile()
+        syn$getUserProfile()
       ),
-      error = function(e) synapse_login(submitter_id)
+      error = function(e) synapse_login(syn, submitter_id)
     )
-   
-    
+
     if (is.na(as.integer(submitter_id))) {
-      owner_id <- .lookup_owner_id()
+      owner_id <- .lookup_owner_id(syn)
     } else {
       owner_id <- submitter_id
     }
-    
-    team_info <- get_team_info(owner_id)
-    
+
+    team_info <- get_team_info(syn, owner_id)
+
     if (!skip_eligibility_checks) {
       cat(crayon::yellow("\nChecking ability to submit...\n\n"))
-      is_eligible <- check_eligibility(team_info$team_id, owner_id)
+      is_eligible <- .check_eligibility(syn, team_info, owner_id)
       is_certified <- TRUE # .check_certification(owner_id)
       if (!is_eligible | !is_certified) {
         switch_user("svc")
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
-    
+
     if (confirm_submit) {
       if (.confirm_prompt() == 2) {
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
-    
+
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))
     submission_filename <- .create_submission(predictions, dry_run = dry_run)
-    
+
     if (!dry_run) {
       switch_user("svc")
       cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
@@ -108,10 +108,10 @@ submit_raadc2 <- function(
         submission_filename,
         team_info
       )
-      
+
       submission_entity_id <- submission_entity$id
       submission_entity_version <- submission_entity$version
-      
+
       switch_user(submitter_id)
       cat(crayon::yellow(
         "\n\nSubmitting prediction to challenge evaluation queue...\n"
@@ -127,7 +127,7 @@ submit_raadc2 <- function(
       submission_entity_version <- "TBD"
       submission_id <- "<pending; dry-run only>"
     }
-    
+
     submit_msg <- glue::glue(
       "\n
       Successfully submitted file: '{filename}'
@@ -140,7 +140,7 @@ submit_raadc2 <- function(
       sub_id = submission_id
     )
     cat(submit_msg)
-    
+
     cat(crayon::green(
       .success_msg(submission_filename, submission_entity_id, submission_id)
     ))
