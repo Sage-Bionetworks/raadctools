@@ -1,15 +1,16 @@
 #' Convenience wrapper function for Synapse login.
 #'
 #' @return None
-synapse_login <- function(user) {
+synapse_login <- function(syn, user) {
   tryCatch(
-    msg <- capture.output(
-      synapser::synLogin(
-        email = user,
-        silent = TRUE
-      )
-    ),
-    error = function(e) .new_login(user)
+    # msg <- capture.output(
+    #   synapser::synLogin(
+    #     email = user,
+    #     silent = TRUE
+    #   )
+    # ),
+    syn$login(email = user),
+    error = function(e) .new_login(syn, user)
   )
 }
 
@@ -69,22 +70,25 @@ synapse_login <- function(user) {
 #' Guide user through Synapse login steps.
 #'
 #' @return None
-.new_login <- function(u) {
+.new_login <- function(syn, u) {
   new_msg <- .new_login_text()
   cat(crayon::bold(crayon::green(new_msg)))
 
   k <- .api_key_prompt()
-  msg <- capture.output(
-    synapser::synLogin(email = u, apiKey = k, rememberMe = TRUE)
-  )
+  # msg <- capture.output(
+    # synapser::synLogin(email = u, apiKey = k, rememberMe = TRUE)
+  # )
+  syn$login(email = u, apiKey = k, rememberMe = TRUE)
 }
 
 
 #' Look up the owner ID for Synapse user.
 #'
 #' @return String with Synapse ID for team project.
-.lookup_owner_id <- function() {
-  user_profile <- synapser::synGetUserProfile()
-  user_profile <- jsonlite::fromJSON(user_profile$json())
+.lookup_owner_id <- function(syn) {
+  # user_profile <- synapser::synGetUserProfile()
+  # user_profile <- jsonlite::fromJSON(user_profile$json())
+  # user_profile$ownerId
+  user_profile <- syn$getUserProfile()
   user_profile$ownerId
 }
