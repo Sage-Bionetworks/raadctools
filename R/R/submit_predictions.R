@@ -49,7 +49,7 @@ submit_raadc2 <- function(
   skip_eligibility_checks = FALSE,
   confirm_submit = TRUE,
   dry_run = FALSE,
-  syn = GLOBAL_SYN
+  syn = NULL
 ) {
   suppressWarnings({
   
@@ -67,6 +67,10 @@ submit_raadc2 <- function(
       submitter_id <- .user_email_prompt()
     }
     
+    if (is.null(syn)) {
+      syn <- .get_syn_client()
+    }
+
     tryCatch(
       msg <- capture.output(
         syn$getUserProfile()
