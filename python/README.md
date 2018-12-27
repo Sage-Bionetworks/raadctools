@@ -7,7 +7,7 @@ pip install git+https://github.roche.com/RAADC2019/submitRAADC2#subdirectory=pyt
 ## Command line usage
 
 ```
-raadctools submit prediction.csv -v
+submitRAADC2 submit prediction.csv -v
 ```
 
 ## Python usage

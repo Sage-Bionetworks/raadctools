@@ -10,7 +10,7 @@ setup(name='raadctools',
       packages=find_packages(),
       zip_safe=False,
       entry_points = {
-        'console_scripts': ['raadctools = raadctools.submit:main']},
+        'console_scripts': ['submitRAADC2 = submitRAADC2.submit:main']},
       install_requires=[
         'pandas>=0.20.0',
         'rpy2',
