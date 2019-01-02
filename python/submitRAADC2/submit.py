@@ -105,15 +105,17 @@ def _get_owner_eligibility(eligibility_data, ownerid):
 	return(list(member_eligible)[0])
 
 
-def check_eligibility(syn, team_obj, ownerid):
+def check_eligibility(syn, team_info, ownerid):
 
-	eligibility_data = _get_eligibility_data(syn, team_obj['id'])
+	eligibility_data = _get_eligibility_data(syn, team_info['team_id'])
 	team_eligibility = eligibility_data['teamEligibility']
 	owner_eligibility = _get_owner_eligibility(eligibility_data, ownerid)
 
-	print(' > Team: {0}'.format(team_obj['name']) + ''.join(r_submitRAADC2._team_eligibility_msg(team_eligibility)))
+	#Need to fix print statements
+	#print(' > Team: {0}'.format(team_obj['name']) + ''.join(r_submitRAADC2._team_eligibility_msg(team_eligibility)))
+	#.owner_eligibility_msg
 
-
+	return(team_eligibility['isEligible'] and owner_eligibility['isEligible'])
 
 def submit_raadc2(prediction_filepath, validate_only=False, dry_run=False):
 	'''
@@ -128,6 +130,10 @@ def submit_raadc2(prediction_filepath, validate_only=False, dry_run=False):
 	syn = synapse_login()
 	ownerid = _lookup_owner_id(syn)
 	team_info = get_team_info(syn, ownerid)
+	is_eligible = check_eligibility(syn, team_info, ownerid)
+	is_certified = True
+	if not is_eligible and not is_certified:
+		raise ValueError("Exiting submission attempt.")
 
 	# is_eligible <- check_eligibility(team_info$team_id, owner_id)
 	# submission_filename <- .create_submission(predictions, dry_run = dry_run)
