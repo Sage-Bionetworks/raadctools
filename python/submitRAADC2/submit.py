@@ -50,7 +50,7 @@ def _lookup_prediction_folder(syn, teamname):
         teamname: Name of team
     '''
     submission_folder = "syn17097318"
-    teamname = teamname.replace("RAAD2 ",'')
+    teamname = teamname.replace("RAAD2 ",'', 1)
     folder_items = syn.getChildren(submission_folder)
     prediction_folder = filter(lambda folders: folders['name'] == teamname, folder_items)
     return(list(prediction_folder)[0]['id'])
@@ -221,13 +221,13 @@ def submit_raadc2(prediction_filepath, validate_only=False, dry_run=False):
     #     submission_filename,
     #     team_info
     #   )
-    try:
-        confirmation = input("y/n:")
-        confirmation = strtobool(confirmation)
-    except ValueError as e:
-        raise ValueError("Please answer with y/n")
-    predictiondf = ro.r['read.csv'](prediction_filepath)
-    r_submitRAADC2.submit_raadc2(predictiondf, validate_only=validate_only, dry_run=dry_run)
+    # try:
+    #     confirmation = input("y/n:")
+    #     confirmation = strtobool(confirmation)
+    # except ValueError as e:
+    #     raise ValueError("Please answer with y/n")
+    # predictiondf = ro.r['read.csv'](prediction_filepath)
+    # r_submitRAADC2.submit_raadc2(predictiondf, validate_only=validate_only, dry_run=dry_run)
 
 
 

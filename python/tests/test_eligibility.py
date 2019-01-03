@@ -3,7 +3,7 @@ import submitRAADC2
 import mock
 import synapseclient
 
-syn = synapseclient.Synapse()
+syn =  mock.create_autospec(synapseclient.Synapse)
 
 team_info = {'team_id':'123456','team_name':'TEST','folder_id':"syn1234"}
 
