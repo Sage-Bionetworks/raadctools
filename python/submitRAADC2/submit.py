@@ -190,7 +190,7 @@ def check_eligibility(syn, team_info, ownerid):
     team_eligibility = eligibility_data['teamEligibility']
     owner_eligibility = _get_owner_eligibility(eligibility_data, ownerid)
 
-    messages = _team_eligibility_message(team_eligibility, team_info['name'])
+    messages = _team_eligibility_message(team_eligibility, team_info['team_name'])
     [print(message) for message in messages]
     messages = _owner_eligibility_message(owner_eligibility)
     [print(message) for message in messages]
