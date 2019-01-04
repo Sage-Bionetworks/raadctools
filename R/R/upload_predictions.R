@@ -15,7 +15,21 @@
 }
 
 
-.stage_predictions <- function(folder_id, submission_filename) {
+.stage_predictions <- function(folder_id, submission_filename, direct = FALSE) {
+  if (direct) {
+    synapseclient <- reticulate::import("synapseclient")
+    syn_temp <- synapseclient$Synapse()
+    syn_temp$login(
+      email = Sys.getenv("EMAIL"),
+      apiKey = Sys.getenv("API_KEY")
+    )
+    submission_entity <- syn_temp$store(
+      synapseclient$File(
+        path = submission_filename,
+        parent = folder_id
+      )
+    )
+  }
   prediction_data <- openssl::base64_encode(
     readr::read_file(submission_filename)
   )
@@ -37,4 +51,23 @@
   )
   list(id = purrr::flatten(submission_entity)$id,
        version = purrr::flatten(submission_entity)$versionNumber)
+}
+
+
+.switch_user <- function(user) {
+  if (user == "svc") {
+    msg <- capture.output(
+      synapser::synLogin(silent = TRUE)
+    )
+  } else {
+    tryCatch(
+      msg <- capture.output(
+        synapser::synLogin(
+          email = user,
+          silent = TRUE
+        )
+      ),
+      error = function(e) configure_login(user)
+    )
+  }
 }

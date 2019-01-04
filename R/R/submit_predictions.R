@@ -91,7 +91,6 @@ submit_raadc2 <- function(
       is_eligible <- .check_eligibility(syn, team_info, owner_id)
       is_certified <- TRUE # .check_certification(owner_id)
       if (!is_eligible | !is_certified) {
-        switch_user("svc")
         stop("\nExiting submission attempt.", call. = FALSE)
       }
     }
@@ -106,9 +105,9 @@ submit_raadc2 <- function(
     submission_filename <- .create_submission(predictions, dry_run = dry_run)
 
     if (!dry_run) {
-      switch_user("svc")
       cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
       submission_entity <- .upload_predictions(
+        syn,
         submission_filename,
         team_info
       )
@@ -116,7 +115,6 @@ submit_raadc2 <- function(
       submission_entity_id <- submission_entity$id
       submission_entity_version <- submission_entity$version
 
-      switch_user(submitter_id)
       cat(crayon::yellow(
         "\n\nSubmitting prediction to challenge evaluation queue...\n"
       ))
@@ -192,21 +190,4 @@ submit_raadc2 <- function(
 }
 
 
-switch_user <- function(user) {
-  if (user == "svc") {
-    msg <- capture.output(
-      synapser::synLogin(silent = TRUE)
-    )
-  } else {
-    tryCatch(
-      msg <- capture.output(
-        synapser::synLogin(
-          email = user,
-          silent = TRUE
-        )
-      ),
-      error = function(e) configure_login(user)
-    )
-  }
-}
 
