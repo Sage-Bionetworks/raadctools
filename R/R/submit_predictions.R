@@ -120,10 +120,10 @@ submit_raadc2 <- function(
       cat(crayon::yellow(
         "\n\nSubmitting prediction to challenge evaluation queue...\n"
       ))
-      submission_object <- synapser::synSubmit(
+      submission_object <- syn$submit(
         evaluation = "9614112",
         entity = submission_entity$id,
-        team = synapser::synGetTeam(team_info$team_id)
+        team = team_info$team_name
       )
       submission_id <- submission_object$id
     } else {
