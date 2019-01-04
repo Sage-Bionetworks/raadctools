@@ -1,10 +1,14 @@
 import argparse
 from rpy2.robjects.packages import importr
-import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+from rpy2.rinterface import RRuntimeError
+#import rpy2.robjects as ro
 import pandas as pd
 r_submitRAADC2 = importr("submitRAADC2")
+
 from distutils.util import strtobool
 import synapseclient
+import sys
 
 def synapse_login():
     '''
@@ -197,26 +201,37 @@ def check_eligibility(syn, team_info, ownerid):
 
     return(team_eligibility['isEligible'] and owner_eligibility['isEligible'])
 
-def submit_raadc2(prediction_filepath, validate_only=False, dry_run=False):
+def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
     '''
     Submitting RAAD2 prediction files
 
     Args:
-        prediction_filepath: Filepath of the csv
+        predictiondf: Prediction dataframe
         validate_only: If 'True', check data for any formatting errors but don't submit to the challenge.
         dry_run: If ‘TRUE', execute submission steps, but don’t store any data in Synapse. 
     '''
+    pandas2ri.activate()
+    print("Running checks to validate date frame format...\n\n")
+    try:
+        valid = r_submitRAADC2.validate_predictions(pandas2ri.py2ri(predictiondf))
+        print("All checks passed")
+    #This is done so the traceback isn't shown
+    except RRuntimeError as e:
+        print(e)
+        sys.exit(1)
 
-    syn = synapse_login()
-    ownerid = _lookup_owner_id(syn)
-    team_info = get_team_info(syn, ownerid)
-    is_eligible = check_eligibility(syn, team_info, ownerid)
-    is_certified = True
-    if not is_eligible and not is_certified:
-        raise ValueError("Exiting submission attempt.")
+    if not validate_only:
+        syn = synapse_login()
+        ownerid = _lookup_owner_id(syn)
+        team_info = get_team_info(syn, ownerid)
+        is_eligible = check_eligibility(syn, team_info, ownerid)
+        is_certified = True
+        if not is_eligible and not is_certified:
+            raise ValueError("Exiting submission attempt.")
+        submission_filename = r_submitRAADC2._create_submission(pandas2ri.py2ri(predictiondf))
+        pandas2ri.deactivate()
+        print(submission_filename)
 
-    # is_eligible <- check_eligibility(team_info$team_id, owner_id)
-    # submission_filename <- .create_submission(predictions, dry_run = dry_run)
     # submission_entity <- .upload_predictions(
     #     submission_filename,
     #     team_info
@@ -240,7 +255,8 @@ def build_parser():
 
 def main():
     args = build_parser().parse_args()
-    submit_raadc2(args.prediction, validate_only=args.validate_only)
+    predictiondf = pd.read_csv(args.prediction)
+    submit_raadc2(predictiondf, validate_only=args.validate_only)
 
 if __name__ == "__main__":
     main()
