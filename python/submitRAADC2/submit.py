@@ -201,6 +201,23 @@ def check_eligibility(syn, team_info, ownerid):
 
     return(team_eligibility['isEligible'] and owner_eligibility['isEligible'])
 
+def upload_to_synapse(syn, submission_filepath, folder_id):
+    '''
+    Upload prediciton file to synapse
+
+    Args:
+        syn: Synapse object
+        submission_filepath: File path of submission
+        folder_id: Synapse id of Team submission folder
+
+    Returns:
+        Synapse File Entity
+    '''
+    file_ent = synapseclient.File(submission_filepath, parentId=folder_id)
+    file_ent = syn.store(file_ent)
+    return(file_ent)
+
+
 def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
     '''
     Submitting RAAD2 prediction files
@@ -226,24 +243,24 @@ def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
         team_info = get_team_info(syn, ownerid)
         is_eligible = check_eligibility(syn, team_info, ownerid)
         is_certified = True
-        if not is_eligible and not is_certified:
+        if not is_eligible or not is_certified:
             raise ValueError("Exiting submission attempt.")
-        submission_filename = r_submitRAADC2._create_submission(pandas2ri.py2ri(predictiondf))
-        pandas2ri.deactivate()
-        print(submission_filename)
 
-    # submission_entity <- .upload_predictions(
-    #     submission_filename,
-    #     team_info
-    #   )
-    # try:
-    #     confirmation = input("y/n:")
-    #     confirmation = strtobool(confirmation)
-    # except ValueError as e:
-    #     raise ValueError("Please answer with y/n")
-    # predictiondf = ro.r['read.csv'](prediction_filepath)
-    # r_submitRAADC2.submit_raadc2(predictiondf, validate_only=validate_only, dry_run=dry_run)
+        confirm_submission = r_submitRAADC2._confirm_prompt()
+        if confirm_submission[0] in [0,2]:
+            print("Exiting submission attempt.")
+            sys.exit(1)
+        else:
+            print("Writing data to local CSV file...")
+            submission_filename = r_submitRAADC2._create_submission(pandas2ri.py2ri(predictiondf))
+            pandas2ri.deactivate()
 
+            prediction_ent = upload_to_synapse(syn, submission_filename[0], team_info['folder_id'])
+            print("\n\nSubmitting prediction to challenge evaluation queue...\n")
+            submission_object = syn.submit(evaluation="9614112",entity=prediction_ent, team=team_info['team_name'])
+            print("Successfully submitted file: '{filename}'".format(filename=submission_filename))
+            print(" > stored as {entityid} [version: {version}]".format(entityid=prediction_ent.id,version=prediction_ent.versionNumber))
+            print(" > submission Id: {subid}".format(subid=submission_object['id']))
 
 
 def build_parser():
