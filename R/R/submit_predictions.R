@@ -13,7 +13,6 @@
 #' @param skip_validation If `TRUE`, skip formatting checks and submit data
 #'     to the challenge.
 #' @param skip_eligibility_checks
-#' @param confirm_submit
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
 #'     data in Synapse.
 #'
@@ -40,14 +39,13 @@
 #' # To simulate submission process without uploading or submitting data:
 #' submit_predictions(d_predictions, submitter_id = "synuser@gene.com",
 #'                    dry_run = TRUE)
-#'}
+#' }
 submit_raadc2 <- function(
   predictions,
   submitter_id = NULL,
   validate_only = FALSE,
   skip_validation = FALSE,
   skip_eligibility_checks = FALSE,
-  confirm_submit = TRUE,
   dry_run = FALSE,
   syn = NULL
 ) {
@@ -95,10 +93,8 @@ submit_raadc2 <- function(
       }
     }
 
-    if (confirm_submit) {
-      if (.confirm_prompt() == 2) {
-        stop("\nExiting submission attempt.", call. = FALSE)
-      }
+    if (.confirm_prompt() == 2) {
+      stop("\nExiting submission attempt.", call. = FALSE)
     }
 
     cat(crayon::yellow("\nWriting data to local CSV file...\n"))

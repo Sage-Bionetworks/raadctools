@@ -19,7 +19,9 @@ Imports:
     glue,
     lubridate,
     readr,
-    crayon
+    crayon,
+    openssl,
+    httr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

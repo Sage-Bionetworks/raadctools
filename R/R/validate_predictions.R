@@ -13,7 +13,7 @@
 #' @return If all checks pass, return TRUE; otherwise, raise an error.
 #' 
 #' @examples
-#'
+#' \dontrun{
 #' paste("Validate example 1")
 #' set.seed(2018)
 #' d_predictions <- data.frame(
@@ -28,7 +28,7 @@
 #' validate_predictions(
 #'   getRAADC2::d_predictions_harbron
 #' )
-#'
+#' }
 validate_predictions <- function(predictions) {
   # colnames correct
   if(paste(colnames(predictions),collapse = ":") != c("PatientID:RespondingSubgroup")) stop(
