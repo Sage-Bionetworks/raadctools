@@ -5,10 +5,14 @@ from rpy2.rinterface import RRuntimeError
 #import rpy2.robjects as ro
 import pandas as pd
 r_submitRAADC2 = importr("submitRAADC2")
+import os
 
 from distutils.util import strtobool
 import synapseclient
 import sys
+import base64
+import requests
+import json
 
 def synapse_login():
     '''
@@ -201,7 +205,23 @@ def check_eligibility(syn, team_info, ownerid):
 
     return(team_eligibility['isEligible'] and owner_eligibility['isEligible'])
 
-def upload_to_synapse(syn, submission_filepath, folder_id):
+def get_service_account():
+    email = os.environ['EMAIL']
+    apikey = os.environ['APIKEY']
+    syn = synapseclient.login(email, apiKey=apikey)
+    return(syn)
+
+def join_team(syn, ownerid):
+    '''
+    '''
+    # accessorId  STRING  The ID of the principal (user or group) approved for access
+    # requirementId   INTEGER The ID of the Access Requirement that this object approves.
+
+    teamid = 3378197
+    syn.restPUT("/team/{teamid}/member/{principalId}".format(teamid=teamid, principalId=ownerid))
+
+
+def upload_predictions(submission_filepath, folder_id, direct=False):
     '''
     Upload prediciton file to synapse
 
@@ -213,10 +233,21 @@ def upload_to_synapse(syn, submission_filepath, folder_id):
     Returns:
         Synapse File Entity
     '''
-    file_ent = synapseclient.File(submission_filepath, parentId=folder_id)
-    file_ent = syn.store(file_ent)
-    return(file_ent)
-
+    if direct:
+        syn_service = get_service_account()
+        file_ent = synapseclient.File(submission_filepath, parentId=folder_id)
+        file_ent = syn.store(file_ent)
+        entity = file_ent
+    else:
+        with open(submission_filepath, 'rb') as data_file:
+            prediction_data = data_file.read()
+            encoded_prediction_data = base64.b64encode(prediction_data)
+        url = "https://gja3h20usl.execute-api.us-east-1.amazonaws.com/v1/predictions"
+        data = {"submission_folder":folder_id,
+                "data":encoded_prediction_data.decode('utf-8')}
+        res = requests.post(url, json=data)
+        entity = json.loads(res.content)
+    return(entity)
 
 def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
     '''
@@ -254,8 +285,9 @@ def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
             print("Writing data to local CSV file...")
             submission_filename = r_submitRAADC2._create_submission(pandas2ri.py2ri(predictiondf))
             pandas2ri.deactivate()
-
-            prediction_ent = upload_to_synapse(syn, submission_filename[0], team_info['folder_id'])
+            #This parameter determines if the submission file is directly uploaded by a service account
+            direct=True
+            prediction_ent = upload_predictions(submission_filename[0], team_info['folder_id'], direct=direct)
             print("\n\nSubmitting prediction to challenge evaluation queue...\n")
             submission_object = syn.submit(evaluation="9614112",entity=prediction_ent, team=team_info['team_name'])
             print("Successfully submitted file: '{filename}'".format(filename=submission_filename))
