@@ -3,12 +3,6 @@
 #' @return None
 synapse_login <- function(syn, user) {
   tryCatch(
-    # msg <- capture.output(
-    #   synapser::synLogin(
-    #     email = user,
-    #     silent = TRUE
-    #   )
-    # ),
     syn$login(email = user),
     error = function(e) .new_login(syn, user)
   )
@@ -80,9 +74,6 @@ synapse_login <- function(syn, user) {
   cat(crayon::bold(crayon::green(new_msg)))
 
   k <- .api_key_prompt()
-  # msg <- capture.output(
-    # synapser::synLogin(email = u, apiKey = k, rememberMe = TRUE)
-  # )
   syn$login(email = u, apiKey = k, rememberMe = TRUE)
 }
 
@@ -91,9 +82,6 @@ synapse_login <- function(syn, user) {
 #'
 #' @return String with Synapse ID for team project.
 .lookup_owner_id <- function(syn) {
-  # user_profile <- synapser::synGetUserProfile()
-  # user_profile <- jsonlite::fromJSON(user_profile$json())
-  # user_profile$ownerId
   user_profile <- syn$getUserProfile()
   user_profile$ownerId
 }

@@ -7,28 +7,17 @@
 #'
 #' @examples
 get_team_info <- function(syn, owner_id) {
-  # owner_teams <- synapser::synRestGET(
-  #   glue::glue("/user/{id}/team/id", id = owner_id)
-  # )
-  # owner_team_ids <- purrr::flatten_chr(owner_teams$teamIds)
   owner_teams <- syn$restGET(
     glue::glue("/user/{id}/team/id", id = owner_id)
   )
   owner_team_ids <- owner_teams$teamIds
    
-   
-  # raad2_team <- owner_team_ids %>%
-  #   purrr::set_names(.) %>%
-  #   purrr::map(~ synapser::synGetTeam(.)[["name"]]) %>%
-  #   purrr::discard(~ stringr::str_detect(., "(Participants|Admin)")) %>%
-  #   purrr::keep(~ stringr::str_detect(., "RAAD2 "))
   raad2_team <- owner_team_ids %>%
     purrr::set_names(.) %>%
     purrr::map(~ syn$getTeam(.)[["name"]]) %>%
     purrr::discard(~ stringr::str_detect(., "(Participants|Admin)")) %>%
     purrr::keep(~ stringr::str_detect(., "RAAD2 "))
   
-  # team_folder_id <- .lookup_prediction_folder(raad2_team[[1]])
   team_folder_id <- .lookup_prediction_folder(syn, raad2_team[[1]])
     
     list(team_id = names(raad2_team)[1],
@@ -57,7 +46,6 @@ get_team_info <- function(syn, owner_id) {
   submission_folder <- "syn17097318"
   team_name <- stringr::str_replace(team_name, "^RAAD2 ", "")
   
-  # folder_items <- synapser::synGetChildren(submission_folder)$asList()
   folder_items <- reticulate::iterate(syn$getChildren(submission_folder))
   
   prediction_folder <- purrr::keep(folder_items, ~ .$name == team_name)

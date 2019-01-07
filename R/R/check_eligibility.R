@@ -5,7 +5,6 @@
 #'
 #' @return If eligible to submit, return `TRUE`; else return `FALSE`.
 .check_eligibility <- function(syn, team_info, owner_id) {
-  # team_name <- synapser::synGetTeam(team_id)[["name"]]
 
   eligibility_data <- .get_eligibility_data(syn, team_info$team_id)
 
@@ -33,10 +32,6 @@
 #' @param team_id ID (integer string) of the participant's team.
 .get_eligibility_data <- function(syn, team_id) {
   eval_id <- "9614112"
-  # eligibility_data <- synapser::synRestGET(
-  #   glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
-  #              evalId = eval_id, id = team_id)
-  # )
   syn$restGET(
     glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
                evalId = eval_id, id = team_id)

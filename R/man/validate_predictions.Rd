@@ -22,7 +22,7 @@ If all checks pass, return TRUE; otherwise, raise an error.
 formatting errors.
 }
 \examples{
-
+\dontrun{
 paste("Validate example 1")
 set.seed(2018)
 d_predictions <- data.frame(
@@ -37,5 +37,5 @@ paste("Validate example 2")
 validate_predictions(
   getRAADC2::d_predictions_harbron
 )
-
+}
 }

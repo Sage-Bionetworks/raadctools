@@ -6,7 +6,7 @@
 \usage{
 submit_raadc2(predictions, submitter_id = NULL, validate_only = FALSE,
   skip_validation = FALSE, skip_eligibility_checks = FALSE,
-  confirm_submit = TRUE, dry_run = FALSE, syn = GLOBAL_SYN)
+  dry_run = FALSE, syn = NULL)
 }
 \arguments{
 \item{predictions}{A dataframe/tibble with two columns, \emph{PatientID} and

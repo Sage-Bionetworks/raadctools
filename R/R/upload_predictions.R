@@ -53,21 +53,3 @@
        version = purrr::flatten(submission_entity)$versionNumber)
 }
 
-
-.switch_user <- function(user) {
-  if (user == "svc") {
-    msg <- capture.output(
-      synapser::synLogin(silent = TRUE)
-    )
-  } else {
-    tryCatch(
-      msg <- capture.output(
-        synapser::synLogin(
-          email = user,
-          silent = TRUE
-        )
-      ),
-      error = function(e) configure_login(user)
-    )
-  }
-}
