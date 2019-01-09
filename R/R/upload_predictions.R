@@ -1,5 +1,6 @@
-.upload_predictions <- function(submission_filename, team_info) {
-  entity_info <- .fetch_submission_entity(team_info$folder_id,
+.upload_predictions <- function(syn, submission_filename, team_info) {
+  entity_info <- .fetch_submission_entity(syn,
+                                          team_info$folder_id,
                                           submission_filename)
   if (is.null(entity_info$version)) {
     target_version <- 1 
@@ -7,26 +8,43 @@
     target_version <- entity_info$version + 1
   }
   
-  submission_entity <- synapser::synStore(
-    synapser::File(
-      path = submission_filename,
-      parentId = team_info$folder_id
-    )
-  )
-  entity_staged <- .monitor_submission_entity(
-    team_info$folder_id,
-    submission_filename,
-    target_version
-  )
-  if (entity_staged) {
-    entity_info <- .fetch_submission_entity(team_info$folder_id,
-                                            submission_filename)
-    return(entity_info)
-  }
+  submission_entity <- .stage_predictions(team_info$folder_id,
+                                          submission_filename)
+  return(list(id = submission_entity$entity_id,
+              version = submission_entity$entity_version))
 }
 
-.fetch_submission_entity <- function(folder_id, submission_filename) {
-  folder_items <- synapser::synGetChildren(folder_id)$asList()
+
+.stage_predictions <- function(folder_id, submission_filename, direct = FALSE) {
+  if (direct) {
+    synapseclient <- reticulate::import("synapseclient")
+    syn_temp <- synapseclient$Synapse()
+    syn_temp$login(
+      email = Sys.getenv("EMAIL"),
+      apiKey = Sys.getenv("API_KEY")
+    )
+    submission_entity <- syn_temp$store(
+      synapseclient$File(
+        path = submission_filename,
+        parent = folder_id
+      )
+    )
+  }
+  prediction_data <- openssl::base64_encode(
+    readr::read_file(submission_filename)
+  )
+  res <- httr::POST(
+    url = "https://gja3h20usl.execute-api.us-east-1.amazonaws.com/v1/predictions",
+    body = list(submission_folder = folder_id,
+                data = prediction_data),
+    encode = "json"
+  )
+  return(httr::content(res))
+}
+
+
+.fetch_submission_entity <- function(syn, folder_id, submission_filename) {
+  folder_items <- reticulate::iterate(syn$getChildren(folder_id))
   submission_entity <- purrr::keep(
     folder_items, 
     ~ .$name == submission_filename
@@ -35,19 +53,3 @@
        version = purrr::flatten(submission_entity)$versionNumber)
 }
 
-
-.monitor_submission_entity <- function(
-  folder_id, 
-  submission_filename, 
-  target_version
-) {
-  version_match <- FALSE
-  while (!version_match) {
-    message("Checking entity status...")
-    entity_info <- .fetch_submission_entity(folder_id, submission_filename)
-    if (is.null(entity_info$version)) { entity_info$version <- 0 }
-    version_match <- entity_info$version == target_version
-  }
-  message("Updated.")
-  return(version_match)
-}

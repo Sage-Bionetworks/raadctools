@@ -4,10 +4,9 @@
 #' @param owner_id Synapse user ID (integer string) of the participant.
 #'
 #' @return If eligible to submit, return `TRUE`; else return `FALSE`.
-check_eligibility <- function(team_id, owner_id) {
-  team_name <- synapser::synGetTeam(team_id)[["name"]]
-  
-  eligibility_data <- .get_eligibility_data(team_id)
+.check_eligibility <- function(syn, team_info, owner_id) {
+
+  eligibility_data <- .get_eligibility_data(syn, team_info$team_id)
 
   team_eligibility <- .get_team_eligibility(eligibility_data)
 
@@ -16,7 +15,7 @@ check_eligibility <- function(team_id, owner_id) {
   cat(glue::glue(
     crayon::bold(" > Team: ") %+% "{team_msg}\n\n",
     team_msg = glue::glue(.team_eligibility_msg(team_eligibility),
-                          name = team_name)
+                          name = team_info$team_name)
   ))
   if (team_eligibility$isEligible) {
     cat(glue::glue(
@@ -31,9 +30,9 @@ check_eligibility <- function(team_id, owner_id) {
 #' Collect eligibility data for a team and its members.
 #'
 #' @param team_id ID (integer string) of the participant's team.
-.get_eligibility_data <- function(team_id) {
+.get_eligibility_data <- function(syn, team_id) {
   eval_id <- "9614112"
-  eligibility_data <- synapser::synRestGET(
+  syn$restGET(
     glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
                evalId = eval_id, id = team_id)
   )

@@ -4,7 +4,7 @@
 \alias{get_team_info}
 \title{Collect challenge team information for the specified Synapse user.}
 \usage{
-get_team_info(owner_id)
+get_team_info(syn, owner_id)
 }
 \arguments{
 \item{owner_id}{Synapse user ID (integer string) of the participant.}

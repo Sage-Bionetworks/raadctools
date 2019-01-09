@@ -1,7 +1,8 @@
 #' @import crayon
 #' @import dplyr
 #' @import tidyr
-#' @import testthat
+#' @import reticulate
+#' @importFrom utils capture.output menu
 #' @importFrom glue glue
 #' @importFrom magrittr %>%
 #' @importFrom purrr keep pluck map map2 map_df map_chr map_int map_lgl
