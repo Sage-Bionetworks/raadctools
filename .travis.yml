@@ -9,3 +9,8 @@ matrix:
     cache: packages
     before_install:
     - cd R
+
+  - language: python
+    script:
+      - python python/setup.py install
+      - pytest -vs python/tests
