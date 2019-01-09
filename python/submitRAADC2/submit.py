@@ -49,19 +49,22 @@ def _new_login(syn, email):
         raise ValueError("Please double check your email and apiKey combination")
     return(syn)
 
-def _lookup_prediction_folder(syn, teamname):
+def _lookup_team_info(syn, teamname):
     '''
     Looks up team's prediction folder
 
     Args:
         syn: Synapse object
         teamname: Name of team
+
+    Returns:
+        tuple (str, bool): team submission folder synapse id, if team is in advanced compute
     '''
-    submission_folder = "syn17097318"
+    challenge_team_table_synid = "syn17096669"
     teamname = teamname.replace("RAAD2 ",'', 1)
-    folder_items = syn.getChildren(submission_folder)
-    prediction_folder = filter(lambda folders: folders['name'] == teamname, folder_items)
-    return(list(prediction_folder)[0]['id'])
+    challenge_team_table = syn.tableQuery("select folderId, advancedCompute from {synid} where teamName = '{teamname}'".format(synid=challenge_team_table_synid, teamname=teamname))
+    challenge_team_tabledf = challenge_team_table.asDataFrame()
+    return(challenge_team_tabledf['folderId'].values[0], challenge_team_tabledf['advancedCompute'].values[0])
 
 def get_team_info(syn, ownerid):
     '''
@@ -72,7 +75,7 @@ def get_team_info(syn, ownerid):
         ownerid: Synapse userid
 
     Returns:
-        dict: team id, team name, folder id
+        dict: team id, team name, folder id, if advanced compute
     '''
     owner_teams = syn.restGET("/user/{id}/team/id".format(id = ownerid))
     owner_team_ids = owner_teams['teamIds']
@@ -85,8 +88,9 @@ def get_team_info(syn, ownerid):
             break
         else:
             raad2_team =None
-    team_folder_id = _lookup_prediction_folder(syn, raad2_team['name'])
-    return({'team_id':raad2_team['id'],'team_name':raad2_team['name'],'folder_id':team_folder_id})
+    
+    team_folder_id, advanced_compute = _lookup_team_info(syn, raad2_team['name'])
+    return({'team_id':raad2_team['id'],'team_name':raad2_team['name'],'folder_id':team_folder_id,'advanced_compute':advanced_compute})
 
 def _lookup_owner_id(syn):
     '''
@@ -100,7 +104,6 @@ def _lookup_owner_id(syn):
     '''
     user_profile = syn.getUserProfile()
     return(user_profile['ownerId'])
-
 
 def _get_eligibility_data(syn, teamid):
     '''
@@ -158,7 +161,7 @@ def _team_eligibility_message(team_eligibility, teamname):
             pass 
     return(messages)
 
-def _owner_eligibility_message(owner_eligibility):
+def _owner_eligibility_message(owner_eligibility, advanced_compute):
     '''
     Gets list of owner eligibility messages
 
@@ -174,7 +177,11 @@ def _owner_eligibility_message(owner_eligibility):
     else:
         messages = [starter + "You're not currently eligible to submit."]
         if not owner_eligibility['isRegistered']:
-            messages.append(starter + "You are not registered for the challenge.")
+            if advanced_compute:
+                url = "https://www.synapse.org/#!Synapse:syn16910051/wiki/584254"
+            else:
+                url = "https://www.synapse.org/#!Synapse:syn16810563/wiki/584196"
+            messages.append(starter + "You have not accepted the terms of the challenge. Please follow the link below to accept the terms.\n" + url)
         else:
             pass
         if owner_eligibility['hasConflictingSubmission']:
@@ -195,12 +202,12 @@ def check_eligibility(syn, team_info, ownerid):
         bool: If user and team is eligible for submission
     '''
     eligibility_data = _get_eligibility_data(syn, team_info['team_id'])
-    team_eligibility = eligibility_data['teamEligibility']
+    team_eligibility = eligibility_data['teamEligibility']  
     owner_eligibility = _get_owner_eligibility(eligibility_data, ownerid)
 
     messages = _team_eligibility_message(team_eligibility, team_info['team_name'])
     [print(message) for message in messages]
-    messages = _owner_eligibility_message(owner_eligibility)
+    messages = _owner_eligibility_message(owner_eligibility, team_info['advanced_compute'])
     [print(message) for message in messages]
 
     return(team_eligibility['isEligible'] and owner_eligibility['isEligible'])
@@ -275,7 +282,8 @@ def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
         is_eligible = check_eligibility(syn, team_info, ownerid)
         is_certified = True
         if not is_eligible or not is_certified:
-            raise ValueError("Exiting submission attempt.")
+            print("Exiting submission attempt.")
+            sys.exit(1)
 
         confirm_submission = r_submitRAADC2._confirm_prompt()
         if confirm_submission[0] in [0,2]:
@@ -286,12 +294,12 @@ def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
             submission_filename = r_submitRAADC2._create_submission(pandas2ri.py2ri(predictiondf))
             pandas2ri.deactivate()
             #This parameter determines if the submission file is directly uploaded by a service account
-            direct=True
+            direct=False
             prediction_ent = upload_predictions(submission_filename[0], team_info['folder_id'], direct=direct)
             print("\n\nSubmitting prediction to challenge evaluation queue...\n")
             submission_object = syn.submit(evaluation="9614112",entity=prediction_ent, team=team_info['team_name'])
-            print("Successfully submitted file: '{filename}'".format(filename=submission_filename))
-            print(" > stored as {entityid} [version: {version}]".format(entityid=prediction_ent.id,version=prediction_ent.versionNumber))
+            print("Successfully submitted file: '{filename}'".format(filename=submission_filename[0]))
+            print(" > stored as {entityid} [version: {version}]".format(entityid=prediction_ent['id'],version=prediction_ent['versionNumber']))
             print(" > submission Id: {subid}".format(subid=submission_object['id']))
 
 
