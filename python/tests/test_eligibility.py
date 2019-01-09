@@ -5,7 +5,7 @@ import synapseclient
 
 syn =  mock.create_autospec(synapseclient.Synapse)
 
-team_info = {'team_id':'123456','team_name':'TEST','folder_id':"syn1234"}
+team_info = {'team_id':'123456','team_name':'TEST','folder_id':"syn1234",'advanced_compute':True}
 
 member4444 = {'isEligible': True,
 'isRegistered': True,
@@ -75,14 +75,18 @@ def test_ineligible__team_eligibility_message():
     assert message == [' > Team : Your team, {}, is not eligible to submit at this time.'.format(team_info['team_name'])," > Team : The team has reached its submission quota for this 24 hour period.",' > Team : The team is not registered for the challenge.']
 
 def test_eligible__owner_eligibility_message():
-    message = submitRAADC2.submit._owner_eligibility_message(member4444)
+    message = submitRAADC2.submit._owner_eligibility_message(member4444, True)
     assert message == [" > User : You're eligible to submit for your team."]
 
-def test_ineligible_registered__owner_eligibility_message():
-    message = submitRAADC2.submit._owner_eligibility_message(member5555)
-    assert message == [" > User : You're not currently eligible to submit.",' > User : You are not registered for the challenge.']
+def test_ineligible_acregistered__owner_eligibility_message():
+    message = submitRAADC2.submit._owner_eligibility_message(member5555, True)
+    assert message == [" > User : You're not currently eligible to submit.",' > User : You have not accepted the terms of the challenge. Please follow the link below to accept the terms.\nhttps://www.synapse.org/#!Synapse:syn16910051/wiki/584254']
+
+def test_ineligible_ncregistered__owner_eligibility_message():
+    message = submitRAADC2.submit._owner_eligibility_message(member5555, False)
+    assert message == [" > User : You're not currently eligible to submit.",' > User : You have not accepted the terms of the challenge. Please follow the link below to accept the terms.\nhttps://www.synapse.org/#!Synapse:syn16810563/wiki/584196']
 
 def test_ineligible_conflict__owner_eligibility_message():
-    message = submitRAADC2.submit._owner_eligibility_message(member6666)
+    message = submitRAADC2.submit._owner_eligibility_message(member6666, True)
     assert message == [" > User : You're not currently eligible to submit."," > User : It appears you've submitted for a different challenge team."]
 

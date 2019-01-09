@@ -201,6 +201,7 @@ def check_eligibility(syn, team_info, ownerid):
     Returns:
         bool: If user and team is eligible for submission
     '''
+    print(team_info)
     eligibility_data = _get_eligibility_data(syn, team_info['team_id'])
     team_eligibility = eligibility_data['teamEligibility']  
     owner_eligibility = _get_owner_eligibility(eligibility_data, ownerid)
