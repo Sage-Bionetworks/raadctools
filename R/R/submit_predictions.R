@@ -83,6 +83,7 @@ submit_raadc2 <- function(
     }
 
     team_info <- get_team_info(syn, owner_id)
+    print(team_info)
 
     if (!skip_eligibility_checks) {
       cat(crayon::yellow("\nChecking ability to submit...\n\n"))
@@ -109,14 +110,14 @@ submit_raadc2 <- function(
       )
 
       submission_entity_id <- submission_entity$id
-      submission_entity_version <- submission_entity$version
+      submission_entity_version <- submission_entity$versionNumber
 
       cat(crayon::yellow(
         "\n\nSubmitting prediction to challenge evaluation queue...\n"
       ))
       submission_object <- syn$submit(
         evaluation = "9614112",
-        entity = submission_entity$id,
+        entity = submission_entity,
         team = team_info$team_name
       )
       submission_id <- submission_object$id

@@ -18,11 +18,11 @@ get_team_info <- function(syn, owner_id) {
     purrr::discard(~ stringr::str_detect(., "(Participants|Admin)")) %>%
     purrr::keep(~ stringr::str_detect(., "RAAD2 "))
   
-  team_folder_id <- .lookup_prediction_folder(syn, raad2_team[[1]])
+  team_info <- .lookup_prediction_folder(syn, raad2_team[[1]])
     
-    list(team_id = names(raad2_team)[1],
-         team_name = raad2_team[[1]],
-         folder_id = team_folder_id)
+  team_info[["team_id"]] = names(raad2_team)[1]
+  team_info[["team_name"]] = raad2_team[[1]]
+  return(team_info)
 }
 
 
@@ -43,11 +43,18 @@ get_team_info <- function(syn, owner_id) {
 #'
 #' @return String with Synapse ID for submission folder.
 .lookup_prediction_folder <- function(syn, team_name) {
-  submission_folder <- "syn17097318"
+  team_table_id <- "syn17096669"
   team_name <- stringr::str_replace(team_name, "^RAAD2 ", "")
-  
-  folder_items <- reticulate::iterate(syn$getChildren(submission_folder))
-  
-  prediction_folder <- purrr::keep(folder_items, ~ .$name == team_name)
-  purrr::flatten(prediction_folder)$id
+  query <- glue::glue("select folderId, advancedCompute from {id} ",
+                      "where teamName = '{name}'",
+                      id = team_table_id,
+                      name = team_name)
+  print(query)
+  team_table <- syn$tableQuery(query)
+  team_info <- team_table$asDataFrame() %>% 
+    unlist() %>% 
+    purrr::map(~ iterate(.)[[1]])
+  adv_cpu_status <- reticulate::py_str(team_info$advancedCompute)
+  team_info$advancedCompute <- adv_cpu_status == "True"
+  return(team_info)
 }
