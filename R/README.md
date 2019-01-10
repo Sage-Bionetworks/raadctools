@@ -76,7 +76,7 @@ All checks passed.
 
 When you're ready to submit your prediction to the RAAD Challenge evaluation queue, simply run this command:
 ```r
-submit_raadc2(prediction_df)
+submit_raadc2(d_predictions)
 ```
 
 You'll be guided through a series with progress messages and prompts. A typical workflow for a first-time user would look like this:
