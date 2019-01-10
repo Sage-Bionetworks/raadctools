@@ -18,4 +18,8 @@ import submitRAADC2
 predictiondf = pd.DataFrame({"PatientID":range(0,400),"RespondingSubgroup":pd.np.repeat(["Tecentriq","Chemo"],[200,200]).tolist()})
 
 submitRAADC2.submit_raadc2(predictiondf)
+
+#or
+from submitRAADC2 import submit_raadc2
+submit_raadc2(predictiondf)
 ```
