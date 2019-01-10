@@ -30,7 +30,6 @@
                 data = prediction_data),
     encode = "json"
   )
-  print(httr::content(res))
   return(httr::content(res))
 }
 
