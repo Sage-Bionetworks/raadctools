@@ -149,12 +149,14 @@ submit_raadc2 <- function(
 
 
 .confirm_prompt_text <- function() {
+  last_start = lubridate::floor_date(lubridate::now(), unit = "week")
   glue::glue(
     "\n
-    Each team is allotted ONE submission per 24 hours. After submitting
-    these predictions, you will not be able to submit again until tomorrow.
+    Each team is allotted ONE submission per 7-day period. After submitting
+    these predictions, you will not be able to submit again until {next_start}.
     \nAre you sure you want to submit?
-    "
+    ",
+    next_start = last_start + lubridate::weeks(1)
   )
 }
 
@@ -177,7 +179,7 @@ submit_raadc2 <- function(
 .success_msg <- function(filename, entity_id, sub_id) {
   glue::glue(
     "\n\n
-    You can find the file with your predictions ('{fname}') on your team's
+    You can find the file with your predictions ('{fname}') on the RAAD2
     Synapse project at
     https://www.synapse.org/#!Synapse:{eid}
     \n\n",
