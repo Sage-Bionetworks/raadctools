@@ -51,7 +51,10 @@ get_team_info <- function(syn, owner_id) {
                       name = team_name)
   team_table <- syn$tableQuery(query)
   team_info <- tryCatch(
-    purrr::flatten(team_table$asDataFrame()),
+    team_table$asDataFrame() %>% 
+      dplyr::rename(folder_id = folderId, 
+                    advanced_compute = advancedCompute) %>% 
+      purrr::flatten(),
     error = function(e) .parse_py_table(team_table)
   )
   return(team_info)
