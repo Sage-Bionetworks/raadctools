@@ -2,8 +2,10 @@
 #'
 #' @return None
 synapse_login <- function(syn, user) {
+  sys_user <- Sys.info()[["user"]]
   tryCatch(
-    syn$login(email = user),
+    syn$login(email = Sys.getenv(paste(sys_user, "EMAIL", sep = "_")),
+              apiKey = Sys.getenv(paste(sys_user, "API_KEY", sep = "_"))),
     error = function(e) .new_login(syn, user)
   )
 }
@@ -73,7 +75,12 @@ synapse_login <- function(syn, user) {
   cat(crayon::bold(crayon::green(new_msg)))
 
   k <- .api_key_prompt()
-  syn$login(email = u, apiKey = k, rememberMe = TRUE)
+  sys_user <- Sys.info()[["user"]]
+  args <- purrr::set_names(list(u, k),
+                           paste(sys_user, c("EMAIL", "API_KEY"), sep = "_"))
+  do.call(Sys.setenv, args)
+  syn$login(email = Sys.getenv(paste(sys_user, "EMAIL", sep = "_")),
+            apiKey = Sys.getenv(paste(sys_user, "API_KEY", sep = "_")))
 }
 
 
