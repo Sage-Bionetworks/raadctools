@@ -1,13 +1,4 @@
 .upload_predictions <- function(syn, submission_filename, team_info) {
-  entity_info <- .fetch_submission_entity(syn,
-                                          team_info$folder_id,
-                                          submission_filename)
-  if (is.null(entity_info$version)) {
-    target_version <- 1 
-  } else {
-    target_version <- entity_info$version + 1
-  }
-  
   submission_entity <- .stage_predictions(team_info$folder_id,
                                           submission_filename)
   return(submission_entity)
@@ -41,16 +32,5 @@
   )
   print(httr::content(res))
   return(httr::content(res))
-}
-
-
-.fetch_submission_entity <- function(syn, folder_id, submission_filename) {
-  folder_items <- reticulate::iterate(syn$getChildren(folder_id))
-  submission_entity <- purrr::keep(
-    folder_items, 
-    ~ .$name == submission_filename
-  )
-  list(id = purrr::flatten(submission_entity)$id,
-       version = purrr::flatten(submission_entity)$versionNumber)
 }
 
