@@ -14,4 +14,5 @@ setup(name='raadctools',
       install_requires=[
         'pandas>=0.20.0',
         'rpy2',
+        'tzlocal',
         'synapseclient'])
