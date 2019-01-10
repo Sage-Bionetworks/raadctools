@@ -1,1 +1,1 @@
-from . import submit
+from submitRAADC2.submit import submit_raadc2
