@@ -49,8 +49,16 @@ get_team_info <- function(syn, owner_id) {
                       "where teamName = '{name}'",
                       id = team_table_id,
                       name = team_name)
-  print(query)
   team_table <- syn$tableQuery(query)
+  team_info <- tryCatch(
+    purrr::flatten(team_table$asDataFrame()),
+    error = function(e) .parse_py_table(team_table)
+  )
+  return(team_info)
+}
+
+
+.parse_py_syntable <- function(team_table) {
   team_info <- team_table$asDataFrame() %>% 
     unlist() %>% 
     purrr::map(~ iterate(.)[[1]])
