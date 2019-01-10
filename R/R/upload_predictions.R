@@ -10,8 +10,7 @@
   
   submission_entity <- .stage_predictions(team_info$folder_id,
                                           submission_filename)
-  return(list(id = submission_entity$entity_id,
-              version = submission_entity$entity_version))
+  return(submission_entity)
 }
 
 
@@ -29,6 +28,7 @@
         parent = folder_id
       )
     )
+    return(submission_entity)
   }
   prediction_data <- openssl::base64_encode(
     readr::read_file(submission_filename)
@@ -39,6 +39,7 @@
                 data = prediction_data),
     encode = "json"
   )
+  print(httr::content(res))
   return(httr::content(res))
 }
 
