@@ -13,6 +13,9 @@ submitRAADC2 submit prediction.csv -v
 ## Python usage
 
 ```
-import raadctools
-raadctools.submit.submit_predictions("prediction.csv",validate_only=True)
+import pandas as pd
+import submitRAADC2
+predictiondf = pd.DataFrame({"PatientID":range(0,400),"RespondingSubgroup":pd.np.repeat(["Tecentriq","Chemo"],[200,200]).tolist()})
+
+submitRAADC2.submit.submit_raadc2(predictiondf)
 ```
