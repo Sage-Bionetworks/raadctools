@@ -9,7 +9,6 @@ synapse_login <- function(syn, user) {
 }
 
 .get_syn_client <- function() {
-  reticulate::use_condaenv("syn-reticulate", required = TRUE)
   synapseclient <- reticulate::import("synapseclient")
   synapseclient$Synapse()
 }
