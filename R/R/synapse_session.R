@@ -2,13 +2,24 @@
 #'
 #' @return None
 synapse_login <- function(syn, user) {
-  sys_user <- Sys.info()[["user"]]
   tryCatch(
-    syn$login(email = Sys.getenv(paste(sys_user, "EMAIL", sep = "_")),
-              apiKey = Sys.getenv(paste(sys_user, "API_KEY", sep = "_"))),
+    syn$login(email = Sys.getenv(paste(user, "SYN_EMAIL", sep = "_")),
+              apiKey = Sys.getenv(paste(user, "SYN_API_KEY", sep = "_"))),
     error = function(e) .new_login(syn, user)
   )
 }
+
+
+#' Clear any cached Synapse credentials without starting a new R session.
+#'
+#' @return None
+clear_credentials <- function() {
+  env_keys <- Sys.getenv() %>% 
+    names() %>% 
+    keep(~ str_detect(., "_(SYN_EMAIL|SYN_API_KEY)"))
+  Sys.unsetenv(env_keys)
+}
+
 
 .get_syn_client <- function() {
   synapseclient <- reticulate::import("synapseclient")
@@ -39,9 +50,9 @@ synapse_login <- function(syn, user) {
 
 .new_login_text <- function() {
   glue::glue(
-    "\n\nIt looks like this is your first time connecting to Synapse from this
-    machine. Let's store your credentials so that you won't need to enter
-    them in the future (unless you switch to a different machine).\n\n
+    "\n\nIt looks like this is your first time connecting to Synapse during
+    this R session. Let's store your credentials so that you won't need to
+    enter them again (during this session).\n\n
     "
   )
 }
@@ -75,12 +86,11 @@ synapse_login <- function(syn, user) {
   cat(crayon::bold(crayon::green(new_msg)))
 
   k <- .api_key_prompt()
-  sys_user <- Sys.info()[["user"]]
   args <- purrr::set_names(list(u, k),
-                           paste(sys_user, c("EMAIL", "API_KEY"), sep = "_"))
+                           paste(u, c("SYN_EMAIL", "SYN_API_KEY"), sep = "_"))
   do.call(Sys.setenv, args)
-  syn$login(email = Sys.getenv(paste(sys_user, "EMAIL", sep = "_")),
-            apiKey = Sys.getenv(paste(sys_user, "API_KEY", sep = "_")))
+  syn$login(email = Sys.getenv(paste(u, "SYN_EMAIL", sep = "_")),
+            apiKey = Sys.getenv(paste(u, "SYN_API_KEY", sep = "_")))
 }
 
 
