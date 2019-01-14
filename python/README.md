@@ -15,7 +15,7 @@ submitRAADC2 submit prediction.csv -v
 ```Jupyter Notebook
 import pandas as pd
 import submitRAADC2
-patient_ids = ['RAADC{num}'.format(num=str(n).rjust(6, '0'))                
+patient_ids = ['RAADCT{num}'.format(num=str(n).rjust(6, '0'))                
                for n in range(1, 1001)]
 subgroups = pd.np.repeat(['Tecentriq', 'Chemo'], [500, 500]).tolist()
 prediction_df = pd.DataFrame(
