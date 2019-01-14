@@ -12,10 +12,11 @@ submitRAADC2 submit prediction.csv -v
 
 ## Python usage
 
-```python
+```Jupyter Notebook
 import pandas as pd
 import submitRAADC2
-patient_ids = ['RAADC{num}'.format(num=str(n).rjust(6, '0'))                for n in range(1, 1001)]
+patient_ids = ['RAADC{num}'.format(num=str(n).rjust(6, '0'))                
+               for n in range(1, 1001)]
 subgroups = pd.np.repeat(['Tecentriq', 'Chemo'], [500, 500]).tolist()
 prediction_df = pd.DataFrame(
     {"PatientID": patient_ids,
@@ -32,7 +33,7 @@ submit_raadc2(prediction_df)
 
 You'll be guided through a series with progress messages and prompts. A typical workflow for a first-time user would look like this:
 
-```python
+```Jupyter Notebook
 Running checks to validate date frame format...
 
 All checks passed.
