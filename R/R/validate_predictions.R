@@ -31,20 +31,28 @@
 #' }
 validate_predictions <- function(predictions) {
   # colnames correct
-  if(paste(colnames(predictions),collapse = ":") != c("PatientID:RespondingSubgroup")) stop(
-    "Predictions not of the format PatientID,RespondingSubgroup"
-  )
+  if (paste(colnames(predictions),collapse = ":") != c("PatientID:RespondingSubgroup")) {
+    stop("Prediction headers not of the format PatientID, RespondingSubgroup")
+  } 
+  
+  # check patient IDs
+  patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
+  patient_ids <- stringr::str_c("RAADC", patient_nums)
+  if (!all(predictions$PatientID %in% patient_ids)) {
+    stop(glue::glue("Unexpected value in PatientID column: ",
+                    "IDs should be in the range RAADC00001..RAADC001000"))
+  }
   
   # check values
-  if (
-    paste(sort(unique(predictions$RespondingSubgroup)),collapse = ":") != c("Chemo:Tecentriq")
-  ) {stop("Predictions should be converted to Chemo, Tecentriq")}
+  if (paste(sort(unique(predictions$RespondingSubgroup)),collapse = ":") != c("Chemo:Tecentriq")) {
+    stop("Prediction values should be converted to Chemo, Tecentriq")
+  }
   
   # 20 to 80% in Tecentriq
   test_pro <- sum(predictions$RespondingSubgroup == "Tecentriq") / nrow(predictions)
-  if (test_pro < 0.2 | test_pro > 0.8) stop(
-    "Proportion in subgroup is not between 20 and 80%"
-  )
+  if (test_pro < 0.2 | test_pro > 0.8) {
+    stop("Proportion in subgroup is not between 20 and 80%")
+  }
   
   return(TRUE)
 }

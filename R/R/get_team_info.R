@@ -17,7 +17,14 @@ get_team_info <- function(syn, owner_id) {
     purrr::map(~ syn$getTeam(.)[["name"]]) %>%
     purrr::discard(~ stringr::str_detect(., "(Participants|Admin)")) %>%
     purrr::keep(~ stringr::str_detect(., "RAAD2 "))
-  
+
+  if (length(raad2_team) == 0) {
+    stop(glue::glue("This Synapse account does not appear to be part of any ",
+                    "RAAD2 Challenge teams. Did you mean to use a different ",
+                    "account? Make sure to use the account associated with ",
+                    "your @gene.com or @roche.com email address."),
+         call. = FALSE)
+  }
   team_info <- .lookup_prediction_folder(syn, raad2_team[[1]])
     
   team_info[["team_id"]] = names(raad2_team)[1]

@@ -5,8 +5,9 @@ synapse_login <- function(syn, user) {
   tryCatch(
     syn$login(email = Sys.getenv(paste(user, "SYN_EMAIL", sep = "_")),
               apiKey = Sys.getenv(paste(user, "SYN_API_KEY", sep = "_"))),
-    error = function(e) .new_login(syn, user)
+    error = function(e) syn <- .new_login(syn, user)
   )
+  return(syn)
 }
 
 
@@ -16,7 +17,7 @@ synapse_login <- function(syn, user) {
 clear_credentials <- function() {
   env_keys <- Sys.getenv() %>% 
     names() %>% 
-    keep(~ str_detect(., "_(SYN_EMAIL|SYN_API_KEY)"))
+    purrr::keep(~ stringr::str_detect(., "_(SYN_EMAIL|SYN_API_KEY)"))
   Sys.unsetenv(env_keys)
 }
 
@@ -28,21 +29,26 @@ clear_credentials <- function() {
 
 .user_email_prompt_text <- function() {
   glue::glue(
-    "\n\n
-    Enter your Synapse user email.
+    "\n\nEnter your Synapse user email.
     
-    Your username should be the same as what you use to log into Synapse
-    with your Google credentials, for example:
-    'adamsd42@gene.com' or 'smith.joe@roche.com'\n\n
+Your username should be the same as what you use to log into Synapse
+with your Google credentials, for example:
+'adamsd42@gene.com' or 'smith.joe@roche.com'\n\n
     "
   )
 }
 
 .api_key_prompt_text <- function() {
   glue::glue(
-    "\n\nFor instructions on how to find your API key, refer to this page on
-    the RAAD Challenge Synapse project:
-    https://www.synapse.org/#!Synapse:syn16910051/wiki/584268\n\n
+    "\nTo find your API key:
+
+    1. Log into www.synapse.org
+    2. Click on your profile in the upper right of the page; see the Synapse
+       docs on User Profiles for more details: 
+       https://docs.synapse.org/articles/user_profiles.html
+    3. Click on 'Settings' tab
+    4. Click 'Show API key' at the bottom of the page; you can copy and paste
+       the key directly into your console.\n\n
     "
   )
 }
@@ -51,8 +57,8 @@ clear_credentials <- function() {
 .new_login_text <- function() {
   glue::glue(
     "\n\nIt looks like this is your first time connecting to Synapse during
-    this R session. Let's store your credentials so that you won't need to
-    enter them again (during this session).\n\n
+this R session. Let's store your credentials so that you won't need to
+enter them again (during this session).\n\n
     "
   )
 }
@@ -89,8 +95,17 @@ clear_credentials <- function() {
   args <- purrr::set_names(list(u, k),
                            paste(u, c("SYN_EMAIL", "SYN_API_KEY"), sep = "_"))
   do.call(Sys.setenv, args)
-  syn$login(email = Sys.getenv(paste(u, "SYN_EMAIL", sep = "_")),
-            apiKey = Sys.getenv(paste(u, "SYN_API_KEY", sep = "_")))
+  tryCatch(
+    syn$login(email = Sys.getenv(paste(u, "SYN_EMAIL", sep = "_")),
+              apiKey = Sys.getenv(paste(u, "SYN_API_KEY", sep = "_"))),
+    error = function(e) {
+      msg <- glue::glue("Something went wrong with the attempt to log you ",
+                        "into Synapse. Please doublecheck your email and API ",
+                        "key combination.")
+      stop(msg, call. = FALSE)
+    }
+  )
+  return(syn)
 }
 
 
