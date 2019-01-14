@@ -38,7 +38,7 @@ validate_predictions <- function(predictions) {
   # check patient IDs
   patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
   patient_ids <- stringr::str_c("RAADC", patient_nums)
-  if (!all(predictions$PatientID %in% patient_ids)) {
+  if (!all(unique(predictions$PatientID) == patient_ids)) {
     stop(glue::glue("Unexpected value in PatientID column: ",
                     "IDs should be in the range RAADC00001..RAADC001000"))
   }
