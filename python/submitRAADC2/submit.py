@@ -52,7 +52,7 @@ def _new_login(syn, email):
     try:
         syn.login(email, apiKey=apikey, rememberMe=True)
     except:
-        raise SynapseAuthentication(
+        raise SynapseError(
             "Something went wrong with the attempt to log you "
             "into Synapse. Please doublecheck your email and API "
             "key combination."
