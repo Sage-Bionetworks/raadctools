@@ -27,21 +27,32 @@
   team_eligibility$isEligible & owner_eligibility$isEligible
 }
 
+
 #' Collect eligibility data for a team and its members.
 #'
 #' @param team_id ID (integer string) of the participant's team.
 .get_eligibility_data <- function(syn, team_id) {
   eval_id <- "9614112"
-  syn$restGET(
-    glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
-               evalId = eval_id, id = team_id)
+  tryCatch(
+    syn$restGET(
+      glue::glue('/evaluation/{evalId}/team/{id}/submissionEligibility',
+                 evalId = eval_id, id = team_id)
+    ),
+    error = function(e) {
+      msg <- glue::glue("The RAAD2 Challenge submission queues are not ",
+                        "currently open. Teams can submit between February ",
+                        "14th and March 15th.")
+      stop(msg, call. = FALSE)
+    }
   )
 }
+
 
 #' Parse eligibility data to check overall team elibility.
 .get_team_eligibility <- function(eligibility_data) {
   tibble::as_tibble(eligibility_data$teamEligibility)
 }
+
 
 #' Parse eligibility data to check participant elibility.
 .get_owner_eligibility <- function(eligibility_data, owner_id) {
@@ -49,6 +60,7 @@
     purrr::map_df(tibble::as_tibble) %>%
     dplyr::filter(principalId == owner_id)
 }
+
 
 #' Construct message summarizing team submission eligibility.
 #'
@@ -66,7 +78,7 @@
       ),
       quota_msg = dplyr::if_else(
         !isEligible & isQuotaFilled,
-        "The team has reached its submission quota for this 24 hour period.",
+        "The team has filled its quota of 2 submissions for the challenge.",
         ""
       ),
       registered_msg = dplyr::if_else(
@@ -77,7 +89,7 @@
     ) %>%
     dplyr::select(dplyr::matches(".*_msg")) %>%
     purrr::flatten_chr() %>%
-    stringr::str_c(collapse = "")
+    stringr::str_c(collapse = " ")
 }
 
 
@@ -97,7 +109,9 @@
       ),
       registered_msg = dplyr::if_else(
         !isEligible & !isRegistered,
-        "The team is not registered for the challenge.",
+        glue::glue("You have not yet agreed to terms for the challenge. ",
+                   "Please view the 'How to Participate' page on the RAAD2 ",
+                   "Challenge wiki in Synapse."),
         ""
       ),
       conflict_msg = dplyr::if_else(

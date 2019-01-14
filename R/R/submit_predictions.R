@@ -11,8 +11,7 @@
 #' @param validate_only If `TRUE`, check data for any formatting errors but
 #'     don't submit to the challenge.
 #' @param skip_validation If `TRUE`, skip formatting checks and submit data
-#'     to the challenge.
-#' @param skip_eligibility_checks
+#'     to the challenge. For developers only!
 #' @param dry_run If `TRUE`, execute submission steps, but don't store any
 #'     data in Synapse.
 #'
@@ -22,11 +21,12 @@
 #' @examples
 #' \dontrun{
 #' # Example prediction data frame
-#' set.seed(2018)
-#' d_predictions <- data.frame(
-#'   PatientID = paste0("Pat",1:400),
-#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
-#' )
+# set.seed(2018)
+# patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
+# d_predictions <- data.frame(
+#   PatientID = stringr::str_c("RAADC", patient_nums),
+#   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
+# )
 #'
 #' # Submitting predictions for user "synuser@gene.com"
 #'
@@ -45,120 +45,129 @@ submit_raadc2 <- function(
   submitter_id = NULL,
   validate_only = FALSE,
   skip_validation = FALSE,
-  skip_eligibility_checks = FALSE,
   dry_run = FALSE,
   syn = NULL
 ) {
   suppressWarnings({
-  
-  if (!skip_validation) {
-    cat(crayon::yellow(
-      "\nRunning checks to validate data frame format...\n\n"
-    ))
-    valid <- validate_predictions(predictions)
-    if(valid) {cat(crayon::green("All checks passed."))}
-  }
-  
-  if (!validate_only) {
-
-    if (is.null(submitter_id)) {
-      submitter_id <- .user_email_prompt()
+    
+    if (!skip_validation) {
+      cat(crayon::yellow(
+        "\nRunning checks to validate data frame format...\n\n"
+      ))
+      valid <- validate_predictions(predictions)
+      if(valid) {cat(crayon::green("All checks passed.\n"))}
     }
     
-    if (is.null(syn)) {
-      syn <- .get_syn_client()
-    }
-
-    tryCatch(
-      msg <- capture.output(
-        syn$getUserProfile()
-      ),
-      error = function(e) synapse_login(syn, submitter_id)
-    )
-
-    if (is.na(as.integer(submitter_id))) {
-      owner_id <- .lookup_owner_id(syn)
-    } else {
-      owner_id <- submitter_id
-    }
-
-    team_info <- get_team_info(syn, owner_id)
-    print(team_info)
-
-    if (!skip_eligibility_checks) {
-      cat(crayon::yellow("\nChecking ability to submit...\n\n"))
-      is_eligible <- .check_eligibility(syn, team_info, owner_id)
-      is_certified <- TRUE # .check_certification(owner_id)
-      if (!is_eligible | !is_certified) {
-        stop("\nExiting submission attempt.", call. = FALSE)
+    if (!validate_only) {
+      
+      if (is.null(syn)) {
+        syn <- .get_syn_client()
       }
-    }
 
-    if (.confirm_prompt() == 2) {
-      stop("\nExiting submission attempt.", call. = FALSE)
-    }
-
-    cat(crayon::yellow("\nWriting data to local CSV file...\n"))
-    submission_filename <- .create_submission(predictions, dry_run = dry_run)
-
-    if (!dry_run) {
-      cat(crayon::yellow("\nUploading prediction file to Synapse...\n\n"))
-      submission_entity <- .upload_predictions(
-        syn,
-        submission_filename,
-        team_info
+      if (is.null(submitter_id) && is.null(syn$username)) {
+        submitter_id <- .user_email_prompt()
+      } else {
+        submitter_id <- syn$username
+      }
+      
+      tryCatch(
+        msg <- capture.output(
+          syn$getUserProfile()
+        ),
+        error = function(e) syn <- synapse_login(syn, submitter_id)
       )
-
-      submission_entity_id <- submission_entity$id
-      submission_entity_version <- submission_entity$versionNumber
-
-      cat(crayon::yellow(
-        "\n\nSubmitting prediction to challenge evaluation queue...\n"
-      ))
-      submission_object <- syn$submit(
-        evaluation = "9614112",
-        entity = submission_entity,
-        team = team_info$team_name
-      )
-      submission_id <- submission_object$id
-    } else {
-      submission_entity_id <- "<pending; dry-run only>"
-      submission_entity_version <- "TBD"
-      submission_id <- "<pending; dry-run only>"
-    }
-
-    submit_msg <- glue::glue(
-      "\n
+      
+      if (is.na(as.integer(submitter_id))) {
+        owner_id <- .lookup_owner_id(syn)
+      } else {
+        owner_id <- submitter_id
+      }
+      
+      team_info <- get_team_info(syn, owner_id)
+      
+      exit_msg <- function(final = FALSE) {
+        if (final) {
+          instructions <- glue::glue("Visit the RAAD2 Challenge page in Synapse ",
+                                     "to track results in the leaderboard.")
+        } else {
+          instructions <- "Run `submit_raadc2()` to try again when ready."
+        }
+        glue::glue("\nExiting submission attempt.\n",
+                   instructions)
+      }
+      cat(crayon::yellow("\n\nChecking ability to submit...\n\n"))
+      is_eligible <- .check_eligibility(syn, team_info, owner_id)
+      if (!is_eligible) {
+        stop(exit_msg(final = TRUE), call. = FALSE)
+      }
+      
+      if (.confirm_prompt() == 2) {
+        stop(exit_msg(), call. = FALSE)
+      }
+      
+      cat(crayon::yellow("\nWriting data to local CSV file...\n"))
+      submission_filename <- .create_submission(predictions, dry_run = dry_run)
+      
+      if (!dry_run) {
+        cat(crayon::yellow("\nUploading prediction file to Synapse...\n"))
+        submission_entity <- .upload_predictions(
+          syn,
+          submission_filename,
+          team_info
+        )
+        
+        submission_entity_id <- submission_entity$id
+        submission_entity_version <- submission_entity$versionNumber
+        
+        cat(crayon::yellow(
+          "\nSubmitting prediction to challenge evaluation queue...\n"
+        ))
+        submission_object <- syn$submit(
+          evaluation = "9614112",
+          entity = submission_entity,
+          team = team_info$team_name
+        )
+        submission_id <- submission_object$id
+      } else {
+        submission_entity_id <- "<pending; dry-run only>"
+        submission_entity_version <- "TBD"
+        submission_id <- "<pending; dry-run only>"
+      }
+      
+      submit_msg <- glue::glue(
+        "\n
       Successfully submitted file: '{filename}'
        > stored as '{entity_id}' [version: {version}]
        > submission ID: '{sub_id}'
       ",
-      filename = submission_filename,
-      entity_id = submission_entity_id,
-      version = submission_entity_version,
-      sub_id = submission_id
-    )
-    cat(submit_msg)
-
-    cat(crayon::green(
-      .success_msg(submission_filename, submission_entity_id, submission_id)
-    ))
-  }
+        filename = submission_filename,
+        entity_id = submission_entity_id,
+        version = submission_entity_version,
+        sub_id = submission_id
+      )
+      cat(submit_msg)
+      
+      cat(crayon::green(
+        .success_msg(submission_filename, submission_entity_id, submission_id)
+      ))
+    }
   })
 }
 
 
 .confirm_prompt_text <- function() {
-  last_start = lubridate::floor_date(lubridate::now(), unit = "week")
   glue::glue(
     "\n
-    Each team is allotted ONE submission per 7-day period. After submitting
-    these predictions, you will not be able to submit again until {next_start}.
+    Each team is allotted a total of TWO valid submissions to the challenge. 
+    You can submit anytime between February 14th and March 15th — it's up to
+    you and your team to decide when to submit predictions within the open
+    window. Once your team has reached its quota, you will not be able to 
+    submit again until.
     \nAre you sure you want to submit?
-    ",
-    next_start = last_start + lubridate::weeks(1)
+    "
   )
 }
+
 
 #' Prompt user to verify whether they want to submit to challenge.
 #'
@@ -180,7 +189,7 @@ submit_raadc2 <- function(
   glue::glue(
     "\n\n
     You can find the file with your predictions ('{fname}') on the RAAD2
-    Synapse project at
+    Challenge Synapse project at
     https://www.synapse.org/#!Synapse:{eid}
     \n\n",
     fname = filename,

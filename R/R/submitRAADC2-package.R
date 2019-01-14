@@ -1,6 +1,7 @@
 #' @import crayon
 #' @import dplyr
 #' @import tidyr
+#' @import stringr
 #' @import reticulate
 #' @importFrom utils capture.output menu
 #' @importFrom glue glue
