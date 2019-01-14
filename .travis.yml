@@ -2,6 +2,7 @@ sudo: false
 warnings_are_errors: false
 env:
   - R_REMOTES_NO_ERRORS_FROM_WARNINGS="true"
+
 matrix:
   include:
 
@@ -11,6 +12,10 @@ matrix:
     - cd R
 
   - language: python
+    python: 3.6
+    before_install:
+    - cd python
+    install:
+    - pip install .
     script:
-      - python python/setup.py install
-      - pytest -vs python/tests
+    - python setup.py test

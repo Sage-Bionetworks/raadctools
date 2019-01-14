@@ -33,5 +33,19 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 
+# Byte-compiled / optimized / DLL files
+__pycache__
+*.pyc
+
+# Distribution / packaging
+build/
+*.egg-info
+.eggs
+/dist/
+
+# VS Code files
+.vscode
+
 # Other local files
 prediction.csv
+
