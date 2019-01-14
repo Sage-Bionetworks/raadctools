@@ -27,31 +27,32 @@ The **`submitRAADC2`** package should be loaded by default when you start a R ne
 library(submitRAADC2)
 ```
 
-## Administrative setup
+### Requirements
 
-The submission package assumes that Synapse credentials for an admin service account are stored locally at `~/.synapseConfig`. In other words, the **synapser** command `synLogin()` (with no additional arguments) should be sufficient to log in with the service account.
+...
 
 ## Usage
 
 You'll be generating a 2-column dataframe for your predictions. It should be formatted like `d_predictions` here (note: the name of your dataframe object doesn't matter).
 ```r
 set.seed(2018)
+patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
 d_predictions <- data.frame(
-  PatientID = paste0("Pat",1:400),
-  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
+  PatientID = stringr::str_c("RAADC", patient_nums),
+  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 )
 
 head(d_predictions)
 ```
 
 ```
-  PatientID RespondingSubgroup
-1      Pat1          Tecentriq
-2      Pat2              Chemo
-3      Pat3          Tecentriq
-4      Pat4              Chemo
-5      Pat5          Tecentriq
-6      Pat6              Chemo
+    PatientID RespondingSubgroup
+1 RAADC000001          Tecentriq
+2 RAADC000002              Chemo
+3 RAADC000003          Tecentriq
+4 RAADC000004              Chemo
+5 RAADC000005          Tecentriq
+6 RAADC000006              Chemo
 ```
 
 To check your predictions for any formatting errors, run the following command:
@@ -94,24 +95,32 @@ with your Google credentials, for example:
 
 Username: eddyj1@gene.com
 
-It looks like this is your first time connecting to Synapse from this
-machine. Let's store your credentials so that you won't need to enter
-them in the future (unless you switch to a different machine).
+It looks like this is your first time connecting to Synapse during
+this R session. Let's store your credentials so that you won't need to
+enter them again (during this session).
 
+To find your API key:
 
-For instructions on how to find your API key, refer to this page on
-the RAAD Challenge Synapse project:
-https://www.synapse.org/#!Synapse:syn16910051/wiki/584268
+    1. Log into www.synapse.org
+    2. Click on your profile in the upper right of the page; see the Synapse
+       docs on User Profiles for more details: 
+       https://docs.synapse.org/articles/user_profiles.html
+    3. Click on 'Settings' tab
+    4. Click 'Show API key' at the bottom of the page; you can copy and paste
+       the key directly into your console.
 
 API key: <your-synapse-api-key>
 
 Checking ability to submit...
 
- > Team: Your team, CompOncInfra, is eligible to submit.
+ > Team: Your team, RAAD2 ADTest, is eligible to submit.
  > User: You're eligible to submit for your team.
 
-Each team is allotted ONE submission per 24 hours. After submitting
-these predictions, you will not be able to submit again until tomorrow.
+Each team is allotted a total of TWO valid submissions to the challenge. 
+You can submit anytime between February 14th and March 15th — it's up to
+you and your team to decide when to submit predictions within the open
+window. Once your team has reached its quota, you will not be able to 
+submit again until.
 
 Are you sure you want to submit? 
 
@@ -124,16 +133,51 @@ Writing data to local CSV file...
 
 Uploading prediction file to Synapse...
 
-Uploading [####################]100.00%   5.8kB/5.8kB  prediction.csv Done...    age ##################################################
-
 Submitting prediction to challenge evaluation queue...
 
 Successfully submitted file: 'prediction.csv'
- > stored as 'syn17093036'
- > submission ID: '9684081'
+ > stored as 'syn17173759' [version: 1]
+ > submission ID: '9684379'
 
-You can find the file with your predictions ('prediction.csv') on your team's
+You can find the file with your predictions ('prediction.csv') on the RAAD2
 Synapse project at
-https://www.synapse.org/#!Synapse:syn17093036
+https://www.synapse.org/#!Synapse:syn17173759
 ```
 
+## Troubleshooting
+
+```r
+To find your API key:
+
+    1. Log into www.synapse.org
+    2. Click on your profile in the upper right of the page; see the Synapse
+       docs on User Profiles for more details: 
+       https://docs.synapse.org/articles/user_profiles.html
+    3. Click on 'Settings' tab
+    4. Click 'Show API key' at the bottom of the page; you can copy and paste
+       the key directly into your console.
+
+API key: notreallyakey
+Error: Something went wrong with the attempt too log you into Synapse. Please doublecheck your email and API key combination.
+```
+
+
+```r
+Username: james.eddy@sagebase.org
+Welcome, James Eddy!
+
+Error: This Synapse account does not appear to be part of any RAAD2 Challenge 
+teams. Did you mean to use a different account? Make sure to use the account 
+associated with your @gene.com or @roche.com email address.
+```
+
+
+```r
+Checking ability to submit...
+
+ > Team: Your team, RAAD2 ADTest, is not eligible to submit at this time. The 
+ team has filled its quota of 2 submissions for the challenge. 
+
+Error: Exiting submission attempt.
+Visit the RAAD2 Challenge page in Synapse to track results in the leaderboard.
+```
