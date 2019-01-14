@@ -14,20 +14,14 @@
 #' 
 #' @examples
 #' \dontrun{
-#' paste("Validate example 1")
 #' set.seed(2018)
+#' patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
 #' d_predictions <- data.frame(
-#'   PatientID = paste0("Pat",1:400),
-#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
+#'   PatientID = stringr::str_c("RAADCT", patient_nums),
+#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 #' )
 #'
 #' validate_predictions(d_predictions)
-#'
-#' paste("Validate example 2")
-#'
-#' validate_predictions(
-#'   getRAADC2::d_predictions_harbron
-#' )
 #' }
 validate_predictions <- function(predictions) {
   # colnames correct
@@ -35,13 +29,25 @@ validate_predictions <- function(predictions) {
     stop("Prediction headers not of the format PatientID, RespondingSubgroup")
   } 
   
+  predictions$PatientID <- as.character(predictions$PatientID)
   # check patient IDs
   patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
-  patient_ids <- stringr::str_c("RAADC", patient_nums)
-  if (!all(unique(predictions$PatientID) == patient_ids)) {
+  patient_ids <- stringr::str_c("RAADCT", patient_nums)
+  if (!all(predictions$PatientID %in% patient_ids)) {
     stop(glue::glue("Unexpected value in PatientID column: ",
-                    "IDs should be in the range RAADC00001..RAADC001000"))
+                    "IDs should be in the range RAADCT00001..RAADCT001000"))
   }
+  
+  suppressWarnings(
+    if (!all(unique(predictions$PatientID) == patient_ids)) {
+      missing_ids <- dplyr::setdiff(patient_ids, predictions$PatientID)
+      stop(glue::glue("Missing the following patient IDs:\n
+                    {ids}\n",
+                      "IDs should comprise all entries in the range ",
+                      "RAADCT00001..RAADCT001000",
+                      ids = stringr::str_c(missing_ids, collapse = ",")))
+    }
+  )
   
   # check values
   if (paste(sort(unique(predictions$RespondingSubgroup)),collapse = ":") != c("Chemo:Tecentriq")) {
