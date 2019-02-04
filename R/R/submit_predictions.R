@@ -22,10 +22,10 @@
 #' \dontrun{
 #' # Example prediction data frame
 #' set.seed(2018)
-#' patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
+#' patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
 #' d_predictions <- data.frame(
-#'   PatientID = stringr::str_c("RAADCT", patient_nums),
-#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
+#'   PatientID = stringr::str_c("RAADCV", patient_nums),
+#'   Treatment = rep(c("Tecentriq","Chemo"), 500)
 #' )
 #'
 #' # Submitting predictions for user "synuser@gene.com"
