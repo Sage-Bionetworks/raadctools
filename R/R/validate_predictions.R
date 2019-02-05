@@ -15,9 +15,8 @@
 #' @examples
 #' \dontrun{
 #' set.seed(2018)
-#' patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
 #' d_predictions <- data.frame(
-#'   PatientID = stringr::str_c("RAADCV", patient_nums),
+#'   PatientID = submitRAADC2::patient_ids,
 #'   Treatment = rep(c("Tecentriq","Chemo"), 500)
 #' )
 #'
@@ -37,24 +36,35 @@ validate_predictions <- function(predictions) {
                     "(RAADCV prefix with 5 digit holders)"))
   }
 
-  patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
-  patient_ids <- stringr::str_c("RAADCV", patient_nums)
-  if (!all(predictions$PatientID %in% patient_ids)) {
-    print(setdiff(predictions$PatientID, patient_ids))
-    stop(glue::glue("Unexpected value in PatientID column: \n",
-                    "IDs should be in the range RAADCV00001..RAADCV01000"))
+  no_extra <- all(predictions$PatientID %in% patient_ids)
+  if (!no_extra) {
+    extra_ids <- dplyr::setdiff(predictions$PatientID, 
+                                submitRAADC2::patient_ids)
+    stop(glue::glue(
+        "
+        Unexpected ID(s) in PatientID column:\n
+          {ids}\n
+        IDs for predictions should only match PatientID values 
+        from the provided test data
+        ",
+        ids = stringr::str_c(extra_ids, collapse = ",")))
   }
   
   suppressWarnings(
-    if (!all(unique(predictions$PatientID) == patient_ids)) {
-      missing_ids <- dplyr::setdiff(patient_ids, predictions$PatientID)
-      stop(glue::glue("Missing the following patient IDs:\n
-                    {ids}\n",
-                      "IDs should comprise all entries in the range ",
-                      "RAADCV00001..RAADCV01000",
-                      ids = stringr::str_c(missing_ids, collapse = ",")))
-    }
+    no_missing <- all(unique(predictions$PatientID) == submitRAADC2::patient_ids)
   )
+  if (!no_missing) {
+    missing_ids <- dplyr::setdiff(submitRAADC2::patient_ids, 
+                                  predictions$PatientID)
+    stop(glue::glue(
+      "
+        Missing the following patient ID(s):\n
+        {ids}\n
+        IDs for predictions should match all PatientID values 
+        from the provided test data
+        ",
+      ids = stringr::str_c(missing_ids, collapse = ",")))
+  }
   
   # check values
   if (paste(sort(unique(predictions$Treatment)),collapse = ":") != c("Chemo:Tecentriq")) {
