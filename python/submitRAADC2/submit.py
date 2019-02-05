@@ -3,6 +3,7 @@ import sys
 import base64
 import requests
 import json
+import csv
 import argparse
 
 import pandas as pd
@@ -411,6 +412,16 @@ def submit_raadc2(predictiondf, validate_only=False, dry_run=False):
             )
             print(msg)
 
+
+data_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'data'
+)
+def patient_ids():
+    with open(os.path.join(data_path, 'patient_ids.csv')) as f:
+      reader = csv.reader(f)
+      patient_ids = [l[0] for l in reader]
+    return patient_ids
 
 
 def build_parser():

@@ -12,28 +12,48 @@ submitRAADC2 submit prediction.csv -v
 
 ## Python usage
 
-```Jupyter Notebook
+You'll be generating a 2-column dataframe for your predictions. It should be formatted like `prediction_df` here (note: the name of your dataframe object doesn't matter).
+```
 import pandas as pd
 import submitRAADC2
-patient_ids = ['RAADCV{num}'.format(num=str(n).rjust(5, '0'))                
-               for n in range(1, 1001)]
+patient_ids = submitRAADC2.submit.patient_ids()
 subgroups = pd.np.repeat(['Tecentriq', 'Chemo'], [500, 500]).tolist()
 prediction_df = pd.DataFrame(
     {"PatientID": patient_ids,
      "Treatment": subgroups
     }
 )
+prediction_df.head()
+```
 
+```
+     PatientID  Treatment
+0  RAADCV00001  Tecentriq
+1  RAADCV00003  Tecentriq
+2  RAADCV00004  Tecentriq
+3  RAADCV00005  Tecentriq
+4  RAADCV00007  Tecentriq
+```
+
+To check your predictions for any formatting errors, run the following command:
+```r
+submitRAADC2.submit_raadc2(prediction_df, validate_only=True)
+```
+
+When you're ready to submit your prediction to the RAAD Challenge evaluation queue, simply run this command:
+```
 submitRAADC2.submit_raadc2(prediction_df)
+```
 
-# or
+Note, this is an equivalent way to import an use the function:
+```
 from submitRAADC2 import submit_raadc2
 submit_raadc2(prediction_df)
 ```
 
 You'll be guided through a series with progress messages and prompts. A typical workflow for a first-time user would look like this:
 
-```Jupyter Notebook
+```
 Running checks to validate date frame format...
 
 All checks passed.
