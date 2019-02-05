@@ -23,19 +23,13 @@ formatting errors.
 }
 \examples{
 \dontrun{
-paste("Validate example 1")
 set.seed(2018)
+patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
 d_predictions <- data.frame(
-  PatientID = paste0("Pat",1:400),
-  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
+  PatientID = stringr::str_c("RAADCV", patient_nums),
+  Treatment = rep(c("Tecentriq","Chemo"), 500)
 )
 
 validate_predictions(d_predictions)
-
-paste("Validate example 2")
-
-validate_predictions(
-  getRAADC2::d_predictions_harbron
-)
 }
 }

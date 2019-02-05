@@ -36,23 +36,21 @@ library(submitRAADC2)
 You'll be generating a 2-column dataframe for your predictions. It should be formatted like `d_predictions` here (note: the name of your dataframe object doesn't matter).
 ```r
 set.seed(2018)
-patient_nums <- stringr::str_pad(1:1000, width = 6, side = "left", pad = "0")
 d_predictions <- data.frame(
-  PatientID = stringr::str_c("RAADC", patient_nums),
-  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
+  PatientID = submitRAADC2::patient_ids,
+  Treatment = rep(c("Tecentriq","Chemo"), 500)
 )
-
 head(d_predictions)
 ```
 
 ```
-    PatientID RespondingSubgroup
-1 RAADC000001          Tecentriq
-2 RAADC000002              Chemo
-3 RAADC000003          Tecentriq
-4 RAADC000004              Chemo
-5 RAADC000005          Tecentriq
-6 RAADC000006              Chemo
+    PatientID Treatment
+1 RAADCV00001 Tecentriq
+2 RAADCV00003     Chemo
+3 RAADCV00004 Tecentriq
+4 RAADCV00005     Chemo
+5 RAADCV00007 Tecentriq
+6 RAADCV00009     Chemo
 ```
 
 To check your predictions for any formatting errors, run the following command:
@@ -65,7 +63,7 @@ If any errors are found, you'll see a message that looks like this:
 Running checks to validate data frame format...
 
  Error in getRAADC2::validate_predictions(predictions) : 
-  Predictions not of the format PatientID,RespondingSubgroup 
+  Predictions not of the format PatientID,Treatment 
 ```
 
 Otherwise, you should see:

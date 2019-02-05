@@ -5,8 +5,7 @@
 \title{Submit predictions to the RAAD Challenge evaluation queue.}
 \usage{
 submit_raadc2(predictions, submitter_id = NULL, validate_only = FALSE,
-  skip_validation = FALSE, skip_eligibility_checks = FALSE,
-  dry_run = FALSE, syn = NULL)
+  skip_validation = FALSE, dry_run = FALSE, syn = NULL)
 }
 \arguments{
 \item{predictions}{A dataframe/tibble with two columns, \emph{PatientID} and
@@ -19,7 +18,7 @@ user will be prompted for email before submission.}
 don't submit to the challenge.}
 
 \item{skip_validation}{If `TRUE`, skip formatting checks and submit data
-to the challenge.}
+to the challenge. For developers only!}
 
 \item{dry_run}{If `TRUE`, execute submission steps, but don't store any
 data in Synapse.}
@@ -36,9 +35,10 @@ Synapse entity to RAAD Challenge evaluation queue for scoring.
 \dontrun{
 # Example prediction data frame
 set.seed(2018)
+patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
 d_predictions <- data.frame(
-  PatientID = paste0("Pat",1:400),
-  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 200)
+  PatientID = stringr::str_c("RAADCV", patient_nums),
+  Treatment = rep(c("Tecentriq","Chemo"), 500)
 )
 
 # Submitting predictions for user "synuser@gene.com"
