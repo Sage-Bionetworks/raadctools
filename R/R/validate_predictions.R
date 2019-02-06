@@ -17,15 +17,15 @@
 #' set.seed(2018)
 #' d_predictions <- data.frame(
 #'   PatientID = submitRAADC2::patient_ids,
-#'   Treatment = rep(c("Tecentriq","Chemo"), 500)
+#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 #' )
 #'
 #' validate_predictions(d_predictions)
 #' }
 validate_predictions <- function(predictions) {
   # colnames correct
-  if (paste(colnames(predictions),collapse = ":") != c("PatientID:Treatment")) {
-    stop("Prediction headers not of the format PatientID, Treatment")
+  if (paste(colnames(predictions),collapse = ":") != c("PatientID:RespondingSubgroup")) {
+    stop("Prediction headers not of the format PatientID, RespondingSubgroup")
   } 
   
   predictions$PatientID <- as.character(predictions$PatientID)
@@ -67,12 +67,12 @@ validate_predictions <- function(predictions) {
   }
   
   # check values
-  if (paste(sort(unique(predictions$Treatment)),collapse = ":") != c("Chemo:Tecentriq")) {
+  if (paste(sort(unique(predictions$RespondingSubgroup)),collapse = ":") != c("Chemo:Tecentriq")) {
     stop("Prediction values should be converted to Chemo, Tecentriq")
   }
   
   # 20 to 80% in Tecentriq
-  test_pro <- sum(predictions$Treatment == "Tecentriq") / nrow(predictions)
+  test_pro <- sum(predictions$RespondingSubgroup == "Tecentriq") / nrow(predictions)
   if (test_pro < 0.2 | test_pro > 0.8) {
     stop("Proportion in subgroup is not between 20 and 80%")
   }
