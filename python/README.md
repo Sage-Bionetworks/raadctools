@@ -20,14 +20,14 @@ patient_ids = submitRAADC2.submit.patient_ids()
 subgroups = pd.np.repeat(['Tecentriq', 'Chemo'], [500, 500]).tolist()
 prediction_df = pd.DataFrame(
     {"PatientID": patient_ids,
-     "Treatment": subgroups
+     "RespondingSubgroup": subgroups
     }
 )
 prediction_df.head()
 ```
 
 ```
-     PatientID  Treatment
+     PatientID  RespondingSubgroup
 0  RAADCV00001  Tecentriq
 1  RAADCV00003  Tecentriq
 2  RAADCV00004  Tecentriq
