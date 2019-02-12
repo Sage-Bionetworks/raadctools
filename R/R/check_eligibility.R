@@ -109,9 +109,9 @@
       ),
       registered_msg = dplyr::if_else(
         !isEligible & !isRegistered,
-        glue::glue("You have not yet agreed to terms for the challenge. ",
+        unclass(glue::glue("You have not yet agreed to terms for the challenge. ",
                    "Please view the 'How to Participate' page on the RAAD2 ",
-                   "Challenge wiki in Synapse."),
+                   "Challenge wiki in Synapse.")),
         ""
       ),
       conflict_msg = dplyr::if_else(

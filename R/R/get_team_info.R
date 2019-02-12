@@ -62,7 +62,7 @@ get_team_info <- function(syn, owner_id) {
       dplyr::rename(folder_id = folderId, 
                     advanced_compute = advancedCompute) %>% 
       purrr::flatten(),
-    error = function(e) .parse_py_table(team_table)
+    error = function(e) .parse_py_syntable(team_table)
   )
   return(team_info)
 }

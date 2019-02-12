@@ -38,13 +38,13 @@ You'll be generating a 2-column dataframe for your predictions. It should be for
 set.seed(2018)
 d_predictions <- data.frame(
   PatientID = submitRAADC2::patient_ids,
-  Treatment = rep(c("Tecentriq","Chemo"), 500)
+  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 )
 head(d_predictions)
 ```
 
 ```
-    PatientID Treatment
+    PatientID RespondingSubgroup
 1 RAADCV00001 Tecentriq
 2 RAADCV00003     Chemo
 3 RAADCV00004 Tecentriq
@@ -63,7 +63,7 @@ If any errors are found, you'll see a message that looks like this:
 Running checks to validate data frame format...
 
  Error in getRAADC2::validate_predictions(predictions) : 
-  Predictions not of the format PatientID,Treatment 
+  Predictions not of the format PatientID,RespondingSubgroup 
 ```
 
 Otherwise, you should see:

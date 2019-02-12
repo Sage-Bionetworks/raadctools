@@ -24,7 +24,7 @@
 #' set.seed(2018)
 #' d_predictions <- data.frame(
 #'   PatientID = submitRAADC2::patient_ids,
-#'   Treatment = rep(c("Tecentriq","Chemo"), 500)
+#'   RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 #' )
 #'
 #' # Submitting predictions for user "synuser@gene.com"
