@@ -24,10 +24,9 @@ formatting errors.
 \examples{
 \dontrun{
 set.seed(2018)
-patient_nums <- stringr::str_pad(1:1000, width = 5, side = "left", pad = "0")
 d_predictions <- data.frame(
-  PatientID = stringr::str_c("RAADCV", patient_nums),
-  Treatment = rep(c("Tecentriq","Chemo"), 500)
+  PatientID = submitRAADC2::patient_ids,
+  RespondingSubgroup = rep(c("Tecentriq","Chemo"), 500)
 )
 
 validate_predictions(d_predictions)

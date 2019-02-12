@@ -49,8 +49,8 @@ head(d_predictions)
 2 RAADCV00003     Chemo
 3 RAADCV00004 Tecentriq
 4 RAADCV00005     Chemo
-5 RAADCV00007 Tecentriq
-6 RAADCV00009     Chemo
+5 RAADCV00006 Tecentriq
+6 RAADCV00007     Chemo
 ```
 
 To check your predictions for any formatting errors, run the following command:

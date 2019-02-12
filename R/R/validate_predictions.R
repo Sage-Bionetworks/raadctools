@@ -51,7 +51,10 @@ validate_predictions <- function(predictions) {
   }
   
   suppressWarnings(
-    no_missing <- all(unique(predictions$PatientID) == submitRAADC2::patient_ids)
+    no_missing <- magrittr::equals(
+      length(setdiff(submitRAADC2::patient_ids, d_predictions$PatientID)),
+      0
+    )
   )
   if (!no_missing) {
     missing_ids <- dplyr::setdiff(submitRAADC2::patient_ids, 
