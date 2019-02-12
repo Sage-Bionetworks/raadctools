@@ -52,7 +52,7 @@ validate_predictions <- function(predictions) {
   
   suppressWarnings(
     no_missing <- magrittr::equals(
-      length(setdiff(submitRAADC2::patient_ids, d_predictions$PatientID)),
+      length(setdiff(submitRAADC2::patient_ids, predictions$PatientID)),
       0
     )
   )
