@@ -247,10 +247,9 @@ def _owner_eligibility_message(owner_eligibility, advanced_compute):
             else:
                 url = "https://www.synapse.org/#!Synapse:syn16810563/wiki/584196"
             messages.append(
-                "You have not yet agreed to terms for the challenge. ",
-                "Please view the 'How to Participate' page on the RAAD2 ",
-                "Challenge wiki in Synapse:\n{link}"
-                .format(link=url)
+                "You have not yet agreed to terms for the challenge. "
+                "Please view the 'How to Participate' page on the RAAD2 "
+                "Challenge wiki in Synapse:\n{link}".format(link=url)
             )
         else:
             pass
