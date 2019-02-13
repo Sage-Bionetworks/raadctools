@@ -161,7 +161,7 @@ submit_raadc2 <- function(
     You can submit anytime between February 14th and March 15th — it's up to
     you and your team to decide when to submit predictions within the open
     window. Once your team has reached its quota, you will not be able to 
-    submit again until.
+    submit again.
     \nAre you sure you want to submit?
     "
   )
