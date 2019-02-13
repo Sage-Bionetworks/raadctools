@@ -36,7 +36,7 @@ validate_predictions <- function(predictions) {
                     "(RAADCV prefix with 5 digit holders)"))
   }
 
-  no_extra <- all(predictions$PatientID %in% patient_ids)
+  no_extra <- all(predictions$PatientID %in% submitRAADC2::patient_ids)
   if (!no_extra) {
     extra_ids <- dplyr::setdiff(predictions$PatientID, 
                                 submitRAADC2::patient_ids)
