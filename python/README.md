@@ -91,13 +91,14 @@ Checking ability to submit...
  > Team: Your team, RAAD2 ADTest, is eligible to submit.
  > User: You're eligible to submit for your team.
 
-Each team is allotted a total of TWO valid submissions to the challenge. 
-You can submit anytime between February 14th and March 15th — it's up to
+Each team is allotted a total of THREE valid submissions to the challenge. 
+You can submit anytime between February 19th and March 15th — it's up to
 you and your team to decide when to submit predictions within the open
-window. Once your team has reached its quota, you will not be able to 
-submit again until.
+window. You will be able to see your score on the leaderboard only for your
+FIRST TWO submissions. Once your team has reached its quota, you will not 
+be able to submit again. 
 
-Are you sure you want to submit? 
+Are you sure you want to submit?
 
 
 1: Yes
