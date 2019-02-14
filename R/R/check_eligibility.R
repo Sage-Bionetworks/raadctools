@@ -41,7 +41,7 @@
     error = function(e) {
       msg <- glue::glue("The RAAD2 Challenge submission queues are not ",
                         "currently open. Teams can submit between February ",
-                        "14th and March 15th.")
+                        "19th and March 15th.")
       stop(msg, call. = FALSE)
     }
   )
@@ -78,7 +78,7 @@
       ),
       quota_msg = dplyr::if_else(
         !isEligible & isQuotaFilled,
-        "The team has filled its quota of 2 submissions for the challenge.",
+        "The team has filled its quota of 3 submissions for the challenge.",
         ""
       ),
       registered_msg = dplyr::if_else(
