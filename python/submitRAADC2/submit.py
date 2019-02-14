@@ -165,7 +165,7 @@ def _get_eligibility_data(syn, teamid):
         raise SynapseError(
             "The RAAD2 Challenge submission queues are not "
             "currently open. Teams can submit between February "
-            "14th and March 15th."
+            "19th and March 15th."
         )
     return eligibility_data
 
@@ -212,7 +212,7 @@ def _team_eligibility_message(team_eligibility, teamname):
                     .format(prefix=starter, name=teamname)]
         if team_eligibility['isQuotaFilled']:
             messages.append(
-                "The team has filled its quota of 2 submissions for the challenge."
+                "The team has filled its quota of 3 submissions for the challenge."
             )
         else:
             pass
