@@ -23,7 +23,7 @@
                                       user = Sys.getenv("USER"),
                                       time = time_stamp)
   } else {
-    submission_filename <- "prediction.csv"
+    submission_filename <- file.path(tempdir(), "prediction.csv")
   }
 
   if (!dry_run) {
